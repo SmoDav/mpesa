@@ -2,7 +2,7 @@
     "name": "smodav/mpesa",
     "description": "M-Pesa API implementation",
     "type": "library",
-    "keywords": ["mpesa", "safaricom", "laravel", "transactions"],
+    "keywords": ["mpesa", "safaricom", "laravel", "transactions", "api"],
     "license": "MIT",
     "authors": [
         {
