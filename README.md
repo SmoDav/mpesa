@@ -1,9 +1,9 @@
 # M-PESA API Package
-[![Build Status](https://travis-ci.org/SmoDav/mpesa.svg?branch=master)](https://travis-ci.org/SmoDav/flash)
-[![Total Downloads](https://poser.pugx.org/smodav/mpesa/d/total.svg)](https://packagist.org/packages/smodav/flash)
-[![Latest Stable Version](https://poser.pugx.org/smodav/mpesa/v/stable.svg)](https://packagist.org/packages/smodav/flash)
-[![Latest Unstable Version](https://poser.pugx.org/smodav/mpesa/v/unstable.svg)](https://packagist.org/packages/smodav/flash)
-[![License](https://poser.pugx.org/smodav/mpesa/license.svg)](https://packagist.org/packages/smodav/flash)
+[![Build Status](https://travis-ci.org/SmoDav/mpesa.svg?branch=master)](https://travis-ci.org/SmoDav/mpesa)
+[![Total Downloads](https://poser.pugx.org/smodav/mpesa/d/total.svg)](https://packagist.org/packages/smodav/mpesa)
+[![Latest Stable Version](https://poser.pugx.org/smodav/mpesa/v/stable.svg)](https://packagist.org/packages/smodav/mpesa)
+[![Latest Unstable Version](https://poser.pugx.org/smodav/mpesa/v/unstable.svg)](https://packagist.org/packages/smodav/mpesa)
+[![License](https://poser.pugx.org/smodav/mpesa/license.svg)](https://packagist.org/packages/smodav/mpesa)
 
 This is a PHP package for the Safaricom's M-Pesa API. 
 The API allows merchant initiate C2B (paybill via web) transactions.
