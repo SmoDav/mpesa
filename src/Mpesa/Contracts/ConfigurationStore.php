@@ -1,12 +1,12 @@
 <?php
 
-namespace SmoDav\MPesa\Contracts;
+namespace SmoDav\Mpesa\Contracts;
 
 /**
  * Interface ConfigurationStore
  *
  * @category PHP
- * @package  SmoDav\MPesa\Contracts
+ * @package  SmoDav\Mpesa\Contracts
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 interface ConfigurationStore

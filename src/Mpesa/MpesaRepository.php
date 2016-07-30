@@ -1,109 +1,59 @@
 <?php
 
-namespace SmoDav\MPesa;
+namespace SmoDav\Mpesa;
 
-use SmoDav\MPesa\Contracts\ConfigurationStore;
+use SmoDav\Mpesa\Contracts\ConfigurationStore;
 
-class Repository
+class MpesaRepository
 {
     /**
      * The M-Pesa API Endpoint.
      *
      * @var string
      */
-    protected $endpoint;
+    public $endpoint;
 
     /**
      * The callback URL to be queried on transaction completion.
      *
      * @var string
      */
-    protected $callbackUrl;
+    public $callbackUrl;
 
     /**
      * The callback method to be used.
      *
      * @var string
      */
-    protected $callbackMethod;
+    public $callbackMethod;
 
     /**
      * The merchant's Paybill number.
      *
      * @var int
      */
-    protected $paybillNumber;
+    public $paybillNumber;
 
     /**
      * The transaction number generator.
      *
      * @var Transactable
      */
-    protected $transactionGenerator;
+    public $transactionGenerator;
 
     /**
      * The SAG Passkey given on registration.
      *
      * @var string
      */
-    protected $passkey;
+    public $passkey;
 
     /**
-     * The hashed password.
+     * Set the system to use demo timestamp and password.
      *
-     * @var string
+     * @var bool
      */
-    protected $password;
-
-    /**
-     * The transaction timestamp.
-     *
-     * @var int
-     */
-    protected $timestamp;
-
-    /**
-     * The transaction reference id
-     *
-     * @var int
-     */
-    protected $referenceId;
-
-    /**
-     * The amount to be deducted
-     *
-     * @var int
-     */
-    protected $amount;
-
-    /**
-     * The Mobile Subscriber number to be billed.
-     * Must be in format 2547XXXXXXXX.
-     *
-     * @var int
-     */
-    protected $number;
-
-    /**
-     * The keys and data to fill in the request body.
-     *
-     * @var array
-     */
-    protected $keys;
-
-    /**
-     * The request to be sent to the endpoint
-     *
-     * @var string
-     */
-    protected $request;
-
-    /**
-     * The generated transaction number by the Transactable implementer.
-     *
-     * @var string
-     */
-    protected $transactionNumber;
+    public $demo;
 
     /**
      * The configuration store that holds the configuration values.
@@ -111,6 +61,7 @@ class Repository
      * @var ConfigurationStore
      */
     private $store;
+
 
     /**
      * Transactor constructor.
@@ -159,6 +110,7 @@ class Repository
     {
         $this->paybillNumber = $this->store->get('mpesa.paybill_number');
         $this->passkey = $this->store->get('mpesa.passkey');
+        $this->demo = $this->store->get('mpesa.demo');
     }
 
     /**

@@ -1,8 +1,9 @@
 <?php
 
-namespace SmoDav\MPesa;
+namespace SmoDav\Mpesa;
 
 use Illuminate\Support\ServiceProvider;
+use SmoDav\Mpesa\Contracts\ConfigurationStore;
 
 class MpesaServiceProvider extends ServiceProvider
 {
@@ -25,9 +26,14 @@ class MpesaServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('SmoDav\MPesa\Contracts\ConfigurationStore', 'SmoDav\MPesa\LaravelConfig');
-        $this->app->singleton('flash', function () {
-            return $this->app->make('SmoDav\Flash\Notifier');
+        $this->app->bind(ConfigurationStore::class, LaravelConfig::class);
+
+        $this->app->singleton('MpesaRepository', function () {
+            return $this->app->make(MpesaRepository::class);
+        });
+
+        $this->app->bind('mpesa', function () {
+            return $this->app->make(Cashier::class);
         });
     }
 }

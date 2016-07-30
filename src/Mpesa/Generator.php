@@ -1,15 +1,15 @@
 <?php
 
-namespace SmoDav\MPesa;
+namespace SmoDav\Mpesa;
 
 use Illuminate\Support\Str;
-use SmoDav\MPesa\Contracts\Transactable;
+use SmoDav\Mpesa\Contracts\Transactable;
 
 /**
  * Class Generator
  *
  * @category PHP
- * @package  SmoDav\MPesa
+ * @package  SmoDav\Mpesa
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class Generator implements Transactable
@@ -21,6 +21,6 @@ class Generator implements Transactable
      */
     public static function generateTransactionNumber()
     {
-        return Str::random(10);
+        return Str::random(16);
     }
 }

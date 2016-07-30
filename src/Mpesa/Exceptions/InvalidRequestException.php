@@ -1,5 +1,5 @@
 <?php
-namespace SmoDav\MPesa\Exceptions;
+namespace SmoDav\Mpesa\Exceptions;
 
 use Exception;
 
@@ -7,7 +7,7 @@ use Exception;
  * Class InvalidRequestException
  *
  * @category PHP
- * @package  SmoDav\MPesa\Exceptions
+ * @package  SmoDav\Mpesa\Exceptions
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class InvalidRequestException extends Exception

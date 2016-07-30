@@ -1,11 +1,18 @@
 <?php
 
-namespace SmoDav\MPesa;
+namespace SmoDav\Mpesa;
 
 use Illuminate\Support\Facades\Facade;
 
 
-class MPesa extends Facade
+/**
+ * Class Mpesa
+ *
+ * @category PHP
+ * @package  SmoDav\Mpesa
+ * @author   David Mjomba <smodavprivate@gmail.com>
+ */
+class Mpesa extends Facade
 {
     /**
      * Get the registered name of the component.
@@ -14,6 +21,6 @@ class MPesa extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'flash';
+        return 'mpesa';
     }
 }

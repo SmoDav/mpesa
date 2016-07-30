@@ -1,29 +1,31 @@
 <?php
 
 use Mockery as mocker;
-use SmoDav\MPesa\Cashier;
-use SmoDav\MPesa\Transactor;
+use SmoDav\Mpesa\Cashier;
+use SmoDav\Mpesa\MpesaRepository;
+use SmoDav\Mpesa\Transactor;
 
-class MPesaTest extends PHPUnit_Framework_TestCase {
+class MpesaTest extends PHPUnit_Framework_TestCase {
 
     protected $transactionGenerator;
 
     protected $cashier;
 
     protected $transactor;
+
     protected $store;
 
     public function setUp()
     {
-        $this->transactionGenerator = mocker::mock('SmoDav\MPesa\Contracts\Transactable');
-        $this->store = mocker::mock('SmoDav\MPesa\Contracts\ConfigurationStore');
-        $this->transactor = mocker::mock('SmoDav\MPesa\Transactor');
-//        $this->cashier = new Cashier($this->transactor);
+        $this->transactionGenerator = mocker::mock('SmoDav\Mpesa\Contracts\Transactable');
+        $this->store = mocker::mock('SmoDav\Mpesa\Contracts\ConfigurationStore');
+        $this->transactor = mocker::mock('SmoDav\Mpesa\Transactor');
     }
 
     /** @test */
     public function it_should_fetch_configs_from_store()
     {
+        $this->store->shouldReceive('get')->with('mpesa.demo');
         $this->store->shouldReceive('get')->with('mpesa.endpoint');
         $this->store->shouldReceive('get')->with('mpesa.callback_url');
         $this->store->shouldReceive('get')->with('mpesa.callback_method');
@@ -32,7 +34,7 @@ class MPesaTest extends PHPUnit_Framework_TestCase {
         $this->store->shouldReceive('get')->with('mpesa.transaction_id_handler');
         $this->store->shouldReceive('get')->with('mpesa.transaction_id_handler');
 
-        new Transactor($this->store);
+        new MpesaRepository($this->store);
     }
 
     /** @test */

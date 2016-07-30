@@ -1,13 +1,13 @@
 <?php
-namespace SmoDav\MPesa;
+namespace SmoDav\Mpesa;
 
-use SmoDav\MPesa\Exceptions\InvalidRequestException;
+use SmoDav\Mpesa\Exceptions\InvalidRequestException;
 
 /**
  * Class Validator
  *
  * @category PHP
- * @package  SmoDav\MPesa
+ * @package  SmoDav\Mpesa
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class Validator

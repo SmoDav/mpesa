@@ -1,28 +1,28 @@
 <?php
 
-namespace SmoDav\MPesa;
+namespace SmoDav\Mpesa;
 
 use Illuminate\Config\Repository;
-use SmoDav\MPesa\Contracts\ConfigurationStore;
+use SmoDav\Mpesa\Contracts\ConfigurationStore;
 
 /**
  * Class LaravelConfig
  *
  * @category PHP
- * @package  SmoDav\MPesa
+ * @package  SmoDav\Mpesa
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class LaravelConfig implements ConfigurationStore
 {
     /**
-     * @var Repository
+     * @var MpesaRepository
      */
     private $repository;
 
     /**
      * LaravelConfiguration constructor.
      *
-     * @param Repository $repository
+     * @param MpesaRepository $repository
      */
     public function __construct(Repository $repository)
     {

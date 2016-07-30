@@ -11,8 +11,11 @@
         }
     ],
     "autoload": {
+        "files": [
+            "src/Mpesa/Support/helpers.php"
+        ],
         "psr-4": {
-            "SmoDav\\MPesa\\": "src/MPesa/"
+            "SmoDav\\Mpesa\\": "src/Mpesa/"
         }
     },
     "require": {

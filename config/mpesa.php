@@ -3,6 +3,21 @@
 
 return [
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Demo
+    |--------------------------------------------------------------------------
+    |
+    | This is a flag to set the API in demo mode and use the demo timestamp
+    | and password. When demo is set to true, set the paybill number to 898998
+    |
+    | Default: "https://safaricom.co.ke/mpesa_online/lnmo_checkout_server.php?wsdl"
+    |
+    */
+
+    'demo' => true,
+
     /*
     |--------------------------------------------------------------------------
     | API Endpoint
@@ -82,5 +97,5 @@ return [
     |
     */
 
-    'transaction_id_handler' => '\SmoDav\MPesa\Generator',
+    'transaction_id_handler' => '\SmoDav\Mpesa\Generator',
 ];

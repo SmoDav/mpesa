@@ -1,65 +1,22 @@
 <?php
-namespace SmoDav\MPesa;
+namespace SmoDav\Mpesa;
 
 use Carbon\Carbon;
 use DOMDocument;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
-use SmoDav\MPesa\Contracts\ConfigurationStore;
-use SmoDav\MPesa\Contracts\Transactable;
-use SmoDav\MPesa\Exceptions\TransactionException;
+use SmoDav\Mpesa\Contracts\Transactable;
+use SmoDav\Mpesa\Exceptions\TransactionException;
 
 /**
  * Class Transactor
  *
  * @category PHP
- * @package  SmoDav\MPesa
+ * @package  SmoDav\Mpesa
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class Transactor
 {
-    /**
-     * The M-Pesa API Endpoint.
-     *
-     * @var string
-     */
-    protected $endpoint;
-
-    /**
-     * The callback URL to be queried on transaction completion.
-     *
-     * @var string
-     */
-    protected $callbackUrl;
-
-    /**
-     * The callback method to be used.
-     *
-     * @var string
-     */
-    protected $callbackMethod;
-
-    /**
-     * The merchant's Paybill number.
-     *
-     * @var int
-     */
-    protected $paybillNumber;
-
-    /**
-     * The transaction number generator.
-     *
-     * @var Transactable
-     */
-    protected $transactionGenerator;
-
-    /**
-     * The SAG Passkey given on registration.
-     *
-     * @var string
-     */
-    protected $passkey;
-
     /**
      * The hashed password.
      *
@@ -125,20 +82,19 @@ class Transactor
     private $client;
 
     /**
-     * The configuration store that holds the configuration values.
+     * The M-Pesa configuration repository.
      *
-     * @var ConfigurationStore
+     * @var MpesaRepository
      */
-    private $store;
+    private $repository;
 
     /**
      * Transactor constructor.
      *
-     * @param ConfigurationStore $store
+     * @param MpesaRepository $repository
      */
-    public function __construct(ConfigurationStore $store)
+    public function __construct(MpesaRepository $repository)
     {
-        $this->store = $store;
         $this->client = new Client([
             'verify'          => false,
             'timeout'         => 60,
@@ -146,52 +102,7 @@ class Transactor
             'expect'          => false,
         ]);
 
-        $this->boot();
-    }
-
-    /**
-     * Boot up the instance.
-     */
-    protected function boot()
-    {
-        $this->configure();
-    }
-
-    /**
-     * Configure the instance and pick configurations from the config file.
-     */
-    protected function configure()
-    {
-        $this->setupBroker();
-        $this->setupPaybill();
-        $this->setNumberGenerator();
-    }
-
-    /**
-     * Set up the API Broker endpoint and callback
-     */
-    protected function setupBroker()
-    {
-        $this->endpoint = $this->store->get('mpesa.endpoint');
-        $this->callbackUrl = $this->store->get('mpesa.callback_url');
-        $this->callbackMethod = $this->store->get('mpesa.callback_method');
-    }
-
-    /**
-     * Set up Merchant Paybill account.
-     */
-    protected function setupPaybill()
-    {
-        $this->paybillNumber = $this->store->get('mpesa.paybill_number');
-        $this->passkey = $this->store->get('mpesa.passkey');
-    }
-
-    /**
-     * Set up the transaction number generator that implements Transactable Interface.
-     */
-    protected function setNumberGenerator()
-    {
-        $this->transactionGenerator = $this->store->get('mpesa.transaction_id_handler');
+        $this->repository = $repository;
     }
 
     /**
@@ -243,8 +154,14 @@ class Transactor
      */
     private function setTimestamp()
     {
+        if ($this->repository->demo) {
+            $this->timestamp = '20160510161908';
+
+            return $this->timestamp;
+        }
         $this->timestamp = Carbon::now()->format('YmdHis');
-        $this->timestamp = '20160510161908';
+
+        return $this->timestamp;
     }
 
     /**
@@ -252,9 +169,16 @@ class Transactor
      */
     private function generatePassword()
     {
-        $passwordSource = $this->paybillNumber . $this->passkey . $this->timestamp;
+        if ($this->repository->demo) {
+            $this->password = 'ZmRmZDYwYzIzZDQxZDc5ODYwMTIzYjUxNzNkZDMwMDRjNGRkZTY2ZDQ3ZTI0YjVjODc4ZTExNTNjMDA1YTcwNw==';
+
+            return $this->password;
+        }
+
+        $passwordSource = $this->repository->paybillNumber . $this->repository->passkey . $this->timestamp;
         $this->password = base64_encode(hash("sha256", $passwordSource));
-        $this->password = 'ZmRmZDYwYzIzZDQxZDc5ODYwMTIzYjUxNzNkZDMwMDRjNGRkZTY2ZDQ3ZTI0YjVjODc4ZTExNTNjMDA1YTcwNw==';
+
+        return $this->password;
     }
 
     /**
@@ -263,15 +187,15 @@ class Transactor
     protected function setupKeys()
     {
         $this->keys = [
-            'VA_PAYBILL'     => $this->paybillNumber,
+            'VA_PAYBILL'     => $this->repository->paybillNumber,
             'VA_PASSWORD'    => $this->password,
             'VA_TIMESTAMP'   => $this->timestamp,
             'VA_TRANS_ID'    => $this->getTransactionNumber(),
             'VA_REF_ID'      => $this->referenceId,
             'VA_AMOUNT'      => $this->amount,
             'VA_NUMBER'      => $this->number,
-            'VA_CALL_URL'    => $this->callbackUrl,
-            'VA_CALL_METHOD' => $this->callbackMethod,
+            'VA_CALL_URL'    => $this->repository->callbackUrl,
+            'VA_CALL_METHOD' => $this->repository->callbackMethod,
         ];
     }
 
@@ -283,7 +207,7 @@ class Transactor
      */
     private function getTransactionNumber()
     {
-        $handler = $this->transactionGenerator;
+        $handler = $this->repository->transactionGenerator;
 
         if (! new $handler instanceof Transactable) {
             throw new \Exception('Generator Handler does not implement the Transactible Interface.');
@@ -323,7 +247,7 @@ class Transactor
      */
     private function send()
     {
-        $response = $this->client->request('POST', $this->endpoint, [
+        $response = $this->client->request('POST', $this->repository->endpoint, [
                 'body' => $this->request
             ]);
 

@@ -1,11 +1,11 @@
 <?php
-namespace SmoDav\MPesa;
+namespace SmoDav\Mpesa;
 
 /**
  * Class Cashier
  *
  * @category PHP
- * @package  SmoDav\MPesa
+ * @package  SmoDav\Mpesa
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class Cashier
