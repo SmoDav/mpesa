@@ -6,17 +6,12 @@
 [![License](https://poser.pugx.org/smodav/mpesa/license.svg)](https://packagist.org/packages/smodav/mpesa)
 
 This is a PHP package for the Safaricom's M-Pesa API. 
-The API allows merchant initiate C2B (paybill via web) transactions.
-The merchant submits authentication details, transaction details, 
-callback url and callback method. 
+The API allows a merchant to initiate C2B (paybill via web) transactions.
+The merchant submits authentication details, transaction details, callback url and callback method. 
 
-After request submission, the merchant receives instant feedback 
-with validity status of their requests. 
-The C2B API handles customer validation and authentication 
-via USSD push. The customer therefore confirms the transaction. 
-If the customer validation fails or declines the transaction, 
-the API makes a callback to merchant. Otherwise the transaction 
-is processed and status is made through a callback. 
+After request submission, the merchant receives instant feedback with validity status of their requests. 
+The C2B API handles customer validation and authentication via USSD push. 
+The customer then confirms the transaction. If the validation of the customer fails or the customer declines the transaction, the API makes a callback to merchant. Otherwise the transaction is processed and its status is made through a callback. 
 
 ## Installation
 
@@ -29,11 +24,11 @@ When using Laravel 5, include the service provider and its alias within your `co
 ```php
 'providers' => [
     SmoDav\Mpesa\MpesaServiceProvider::class,
-];
+],
 
 'aliases' => [
     'Mpesa' => SmoDav\Mpesa\Mpesa::class,
-];
+],
 ```
 
 Publish the package specific config using:
@@ -147,7 +142,7 @@ public function checkout()
 
 ##NOTE
 
-The use of Safaricom's demo paybill number will deduct actual amount from your M-Pesa account. For the testing purposes please use the minimum transaction amount which is KES 10.
+The use of Safaricom's demo paybill number will actually deduct the amount from your M-Pesa account. For the testing purposes please use the minimum transaction amount which is KES 10.
 
 ##License
 
