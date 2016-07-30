@@ -1,0 +1,28 @@
+{
+    "name": "smodav/mpesa",
+    "description": "M-Pesa API implementation",
+    "type": "library",
+    "keywords": ["mpesa", "safaricom", "laravel", "transactions"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "SmoDav",
+            "email": "smodavprivate@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "SmoDav\\MPesa\\": "src/MPesa/"
+        }
+    },
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "~5.0",
+        "nesbot/carbon": "~1.21",
+        "guzzlehttp/guzzle": "^6.2"
+    },
+    "require-dev": {
+        "mockery/mockery": "dev-master"
+    },
+    "minimum-stability": "stable"
+}

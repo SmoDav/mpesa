@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="tns:ns" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+    <soapenv:Header>
+        <tns:CheckOutHeader>
+            <MERCHANT_ID>VA_PAYBILL</MERCHANT_ID>
+            <PASSWORD>VA_PASSWORD</PASSWORD>
+            <TIMESTAMP>VA_TIMESTAMP</TIMESTAMP>
+        </tns:CheckOutHeader>
+    </soapenv:Header>
+    <soapenv:Body>
+        <tns:processCheckOutRequest>
+            <MERCHANT_TRANSACTION_ID>VA_TRANS_ID</MERCHANT_TRANSACTION_ID>
+            <REFERENCE_ID>VA_REF_ID</REFERENCE_ID>
+            <AMOUNT>VA_AMOUNT</AMOUNT>
+            <MSISDN>VA_NUMBER</MSISDN>
+            <ENC_PARAMS></ENC_PARAMS>
+            <CALL_BACK_URL>VA_CALL_URL</CALL_BACK_URL>
+            <CALL_BACK_METHOD>VA_CALL_METHOD</CALL_BACK_METHOD>
+            <TIMESTAMP>VA_TIMESTAMP</TIMESTAMP>
+        </tns:processCheckOutRequest>
+    </soapenv:Body>
+</soapenv:Envelope>
