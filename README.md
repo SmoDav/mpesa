@@ -144,3 +144,11 @@ public function checkout()
     $repsonse = mpesa(100, 254722000000, 115445)->transact();
 }
 ```
+
+##NOTE
+
+The use of Safaricom's demo paybill number will deduct actual amount from your M-Pesa account. For the testing purposes please use the minimum transaction amount which is KES 10.
+
+##License
+
+The M-Pesa Package is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
