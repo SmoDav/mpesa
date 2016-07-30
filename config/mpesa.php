@@ -12,7 +12,7 @@ return [
     | This is a flag to set the API in demo mode and use the demo timestamp
     | and password. When demo is set to true, set the paybill number to 898998
     |
-    | Default: "https://safaricom.co.ke/mpesa_online/lnmo_checkout_server.php?wsdl"
+    | Default: true
     |
     */
 
@@ -42,7 +42,7 @@ return [
     |
     */
 
-    'callback_url' => "http://crackthecode.co.ke/MPESA/processcheckout.php",
+    'callback_url' => "http://payments.smodavproductions.com/checkout.php",
 
     /*
     |--------------------------------------------------------------------------
