@@ -3,7 +3,7 @@
 use Mockery as mocker;
 use SmoDav\Mpesa\Cashier;
 use SmoDav\Mpesa\MpesaRepository;
-use SmoDav\Mpesa\Transactor;
+use SmoDav\Mpesa\Native\NativeConfig;
 
 class MpesaTest extends PHPUnit_Framework_TestCase {
 
@@ -15,11 +15,14 @@ class MpesaTest extends PHPUnit_Framework_TestCase {
 
     protected $store;
 
+    protected $nativeStore;
+
     public function setUp()
     {
         $this->transactionGenerator = mocker::mock('SmoDav\Mpesa\Contracts\Transactable');
         $this->store = mocker::mock('SmoDav\Mpesa\Contracts\ConfigurationStore');
         $this->transactor = mocker::mock('SmoDav\Mpesa\Transactor');
+        $this->nativeStore = new NativeConfig();
     }
 
     /** @test */
@@ -76,4 +79,24 @@ class MpesaTest extends PHPUnit_Framework_TestCase {
 
         $this->cashier->request(20)->from(254722000000)->usingReferenceId(154452)->transact();
     }
+
+    /** @test */
+    public function it_should_fetch_configs_from_native_store()
+    {
+        $value = $this->nativeStore->get('mpesa.demo');
+        $this->assertEquals(true, $value);
+        $value = $this->nativeStore->get('mpesa.endpoint');
+        $this->assertEquals("https://safaricom.co.ke/mpesa_online/lnmo_checkout_server.php?wsdl", $value);
+        $value = $this->nativeStore->get('mpesa.callback_url');
+        $this->assertEquals("http://payments.smodavproductions.com/checkout.php", $value);
+        $value = $this->nativeStore->get('mpesa.callback_method');
+        $this->assertEquals("POST", $value);
+        $value = $this->nativeStore->get('mpesa.paybill_number');
+        $this->assertEquals(898998, $value);
+        $value = $this->nativeStore->get('mpesa.passkey');
+        $this->assertEquals('passkey', $value);
+        $value = $this->nativeStore->get('mpesa.transaction_id_handler');
+        $this->assertEquals('\SmoDav\Mpesa\Generator', $value);
+    }
+
 }

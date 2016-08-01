@@ -19,6 +19,8 @@ Pull in the package through Composer.
 
 Run `composer require smodav/mpesa`
 
+### Laravel
+
 When using Laravel 5, include the service provider and its alias within your `config/app.php`.
 
 ```php
@@ -38,6 +40,17 @@ php artisan vendor:publish
 
 This will publish the M-Pesa configuration file into the `config` directory as
 `mpesa.php`. This file contains all the configurations required to use the package.
+
+### Other Frameworks
+
+To implement this package, a configuration repository is needed, thus any other
+framework will need to create its own implementation of the `ConfigurationStore`
+interface.
+
+### Native PHP
+
+When using Native PHP, you will need to modify the configuration file found under
+the package's config directory. 
 
 ## Configuration
 
@@ -98,6 +111,7 @@ to provide a transaction number to be used. The default works fine.
 
 ## Usage
 
+### Laravel
 The package comes with a helper function `mpesa()` and its respective facade `Mpesa`.
 To initiate a transaction using the facade:
 
@@ -139,6 +153,27 @@ public function checkout()
     $repsonse = mpesa(100, 254722000000, 115445)->transact();
 }
 ```
+
+### Native PHP
+
+When using Native PHP, all you need to do is use the Native Implementation
+of the Mpesa Class:
+
+```php
+use SmoDav\Mpesa\Native\Mpesa;
+
+public function checkout()
+{
+    $mpesa = new Mpesa;
+    
+    $repsonse = $mpesa->request(100)->from(254721799083)->usingReferenceId(115445)->transact();
+}
+
+```
+
+## Result
+
+The result of any methods above will be an instance of `GuzzleHttp\Psr7\Response`.
 
 ##NOTE
 
