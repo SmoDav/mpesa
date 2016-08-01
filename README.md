@@ -166,7 +166,7 @@ public function checkout()
 {
     $mpesa = new Mpesa;
     
-    $repsonse = $mpesa->request(100)->from(254721799083)->usingReferenceId(115445)->transact();
+    $repsonse = $mpesa->request(100)->from(254722000000)->usingReferenceId(115445)->transact();
 }
 
 ```
