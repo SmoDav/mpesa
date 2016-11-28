@@ -171,6 +171,44 @@ public function checkout()
 
 ```
 
+For both Laravel and Native PHP, you can override the default paybill number and passkey
+that has been configured by the config file. Simply use the 
+`setPayBill($payBillNumber, $payBillPassKey)` function.
+
+Make sure the `setPayBill($payBillNumber, $payBillPassKey)` function
+is called before the `transact()` function.
+
+#####Laravel
+
+```php
+
+public function checkout()
+{
+    // initialize the amount to be deducted, the number and reference id
+    
+    $repsonse = mpesa(100, 254722000000, 115445)->setPayBill(898998, 'the SAG passkey')->transact();
+}
+
+```
+
+#####Native
+```php
+use SmoDav\Mpesa\Native\Mpesa;
+
+public function checkout()
+{
+    $mpesa = new Mpesa;
+    
+    $repsonse = $mpesa->setPayBill(898998, 'the SAG passkey')
+        ->request(100)
+        ->from(254722000000)
+        ->usingReferenceId(115445)
+        ->transact();
+}
+
+```
+
+
 ## Result
 
 The result of any methods above will be an instance of `GuzzleHttp\Psr7\Response`.

@@ -165,6 +165,22 @@ class Transactor
     }
 
     /**
+     * Override the config pay bill number and pass key.
+     *
+     * @param $payBillNumber
+     * @param $payBillPassKey
+     *
+     * @return $this
+     */
+    public function setPayBill($payBillNumber, $payBillPassKey)
+    {
+        $this->repository->paybillNumber = $payBillNumber;
+        $this->repository->passkey = $payBillPassKey;
+
+        return $this;
+    }
+
+    /**
      * Generate the password for the transaction.
      */
     private function generatePassword()
