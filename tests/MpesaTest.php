@@ -61,16 +61,6 @@ class MpesaTest extends PHPUnit_Framework_TestCase {
     }
 
     /** @test */
-    public function it_throws_exception_on_invalid_reference_id()
-    {
-        $this->setExpectedException('InvalidArgumentException');
-
-        $this->cashier = new Cashier($this->transactor);
-
-        $this->cashier->usingReferenceId('credit');
-    }
-
-    /** @test */
     public function it_should_call_the_transactor()
     {
         $this->transactor->shouldReceive('process')->with(20, 254722000000, 154452);
