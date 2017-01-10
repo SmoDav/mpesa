@@ -109,10 +109,6 @@ class Cashier
      */
     public function usingReferenceId($referenceId)
     {
-        if (!is_numeric($referenceId)) {
-            throw new \InvalidArgumentException('The reference id must be numeric');
-        }
-
         $this->referenceId = $referenceId;
 
         return $this;
