@@ -62,14 +62,9 @@ To implement this package, a configuration repository is needed, thus any other
 framework will need to create its own implementation of the `ConfigurationStore`
 interface.
 
-### Native PHP
-
-When using Native PHP, you will need to modify the configuration file found under
-the package's config directory. 
-
 ## Configuration
 
-The `mpesa.php` file should be modified to meet your needs. The following are the
+The `mpesa.php` file under the `config` directory should be modified to meet your needs. The following are the
 settings:
 
 - demo: boolean
