@@ -28,7 +28,7 @@
         "mockery/mockery": "dev-master"
     },
     "scripts": {
-        "post-package-install": [
+        "post-install-cmd": [
             "SmoDav\\Mpesa\\Support\\Installer::install"
         ]
     },
