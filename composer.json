@@ -27,10 +27,6 @@
     "require-dev": {
         "mockery/mockery": "dev-master"
     },
-    "scripts": {
-        "post-update-cmd": [
-            "SmoDav\\Mpesa\\Support\\Installer::install"
-        ]
-    },
+
     "minimum-stability": "stable"
 }

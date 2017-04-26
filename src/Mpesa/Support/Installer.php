@@ -8,7 +8,6 @@ class Installer
 {
     public static function install(Event $event)
     {
-        echo "Copying config file.";
         $config = __DIR__.'/../../../config/mpesa.php';
         $configDir = self::getConfigDirectory($event);
 
