@@ -27,7 +27,7 @@
     },
     "require-dev": {
         "mockery/mockery": "dev-master",
-        "phpunit/phpunit": "^6.1"
+        "phpunit/phpunit": "4.*"
     },
 
     "minimum-stability": "stable"
