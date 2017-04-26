@@ -25,7 +25,14 @@ class NativeConfig implements ConfigurationStore
      */
     public function __construct()
     {
-        $this->config = require(__DIR__ . '/../../../config/mpesa.php');
+        $defaultConfig = require(__DIR__ . '/../../../config/mpesa.php');
+        $userConfig = __DIR__ . '/../../../../../../config/mpesa.php';
+        $custom = [];
+        if (is_file($userConfig)) {
+            $custom = require($userConfig);
+        }
+
+        $this->config = array_merge($defaultConfig, $custom);
     }
 
     /**

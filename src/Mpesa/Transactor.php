@@ -159,6 +159,7 @@ class Transactor
 
             return $this->timestamp;
         }
+
         $this->timestamp = Carbon::now()->format('YmdHis');
 
         return $this->timestamp;
