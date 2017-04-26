@@ -17,7 +17,22 @@ The customer then confirms the transaction. If the validation of the customer fa
 
 Pull in the package through Composer.
 
-Run `composer require smodav/mpesa`
+### Native Addon
+When using vanilla PHP, modify your `composer.json` file to include:
+
+```json
+  "scripts": {
+        "post-update-cmd": [
+            "SmoDav\\Mpesa\\Support\\Installer::install"
+        ]
+  },
+```
+This script will copy the default configuration file to a config folder in the root directory of your project.
+Now proceed to require the package.
+
+### General Install
+
+Run `composer require smodav/mpesa` to get the latest stable version of the package.
 
 ### Laravel
 

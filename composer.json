@@ -23,9 +23,11 @@
         "illuminate/support": "~5.0",
         "nesbot/carbon": "~1.21",
         "guzzlehttp/guzzle": "^6.2"
+
     },
     "require-dev": {
-        "mockery/mockery": "dev-master"
+        "mockery/mockery": "dev-master",
+        "phpunit/phpunit": "^6.1"
     },
 
     "minimum-stability": "stable"
