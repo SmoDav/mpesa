@@ -1,4 +1,4 @@
-# M-PESA API Package
+# M-PESA API SOAP Package
 [![Build Status](https://travis-ci.org/SmoDav/mpesa.svg?branch=master)](https://travis-ci.org/SmoDav/mpesa)
 [![Total Downloads](https://poser.pugx.org/smodav/mpesa/d/total.svg)](https://packagist.org/packages/smodav/mpesa)
 [![Latest Stable Version](https://poser.pugx.org/smodav/mpesa/v/stable.svg)](https://packagist.org/packages/smodav/mpesa)
