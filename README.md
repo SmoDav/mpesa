@@ -122,6 +122,7 @@ to provide a transaction number to be used. The default works fine.
 ## Usage
 
 ### Laravel
+
 The package comes with a helper function `mpesa()` and its respective facade `Mpesa`.
 To initiate a transaction using the facade:
 
@@ -188,7 +189,7 @@ that has been configured by the config file. Simply use the
 Make sure the `setPayBill($payBillNumber, $payBillPassKey)` function
 is called before the `transact()` function.
 
-#####Laravel
+##### Laravel
 
 ```php
 
@@ -201,7 +202,7 @@ public function checkout()
 
 ```
 
-#####Native
+##### Native
 ```php
 use SmoDav\Mpesa\Native\Mpesa;
 
@@ -223,10 +224,10 @@ public function checkout()
 
 The result of any methods above will be an instance of `GuzzleHttp\Psr7\Response`.
 
-##NOTE
+## NOTE
 
 The use of Safaricom's demo paybill number will actually deduct the amount from your M-Pesa account. For the testing purposes please use the minimum transaction amount which is KES 10.
 
-##License
+## License
 
 The M-Pesa Package is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
