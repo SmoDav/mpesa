@@ -3,8 +3,8 @@ namespace SmoDav\Mpesa;
 
 use Carbon\Carbon;
 use DOMDocument;
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
+use Http\Adapter\AdapterInterface;
+use Http\Adapter\GuzzleHttpAdapter;
 use SmoDav\Mpesa\Contracts\Transactable;
 use SmoDav\Mpesa\Exceptions\TransactionException;
 
@@ -93,15 +93,9 @@ class Transactor
      *
      * @param MpesaRepository $repository
      */
-    public function __construct(MpesaRepository $repository)
+    public function __construct(MpesaRepository $repository, AdapterInterface $client)
     {
-        $this->client = new Client([
-            'verify'          => false,
-            'timeout'         => 60,
-            'allow_redirects' => false,
-            'expect'          => false,
-        ]);
-
+        $this->client = $client;
         $this->repository = $repository;
     }
 
@@ -264,9 +258,7 @@ class Transactor
      */
     private function send()
     {
-        $response = $this->client->request('POST', $this->repository->endpoint, [
-                'body' => $this->request
-            ]);
+        $response = $this->client->post($this->repository->endpoint, $this->request);
 
         $this->validateResponse($response);
 
@@ -282,8 +274,8 @@ class Transactor
      */
     private function validateResponse($response)
     {
-        $message = $response->getBody()->getContents();
-        $response->getBody()->rewind();
+        $message = $response->getContents();
+        $response->rewind();
         $doc = new DOMDocument();
         $doc->loadXML($message);
 
