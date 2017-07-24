@@ -1,11 +1,19 @@
 <?php
+/*
+ *   This file is part of the Smodav Mpesa library.
+ *
+ *   Copyright (c) 2016 SmoDav
+ *
+ *   For the full copyright and license information, please view the LICENSE
+ *   file that was distributed with this source code.
+ */
 namespace SmoDav\Mpesa;
 
 /**
  * Class Cashier
  *
  * @category PHP
- * @package  SmoDav\Mpesa
+ *
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class Cashier
@@ -62,7 +70,6 @@ class Cashier
         return $this;
     }
 
-
     /**
      * Set the request amount to be deducted.
      *
@@ -72,7 +79,7 @@ class Cashier
      */
     public function request($amount)
     {
-        if (!is_numeric($amount)) {
+        if (!\is_numeric($amount)) {
             throw new \InvalidArgumentException('The amount must be numeric');
         }
 

@@ -1,5 +1,12 @@
 <?php
-
+/*
+ *   This file is part of the Smodav Mpesa library.
+ *
+ *   Copyright (c) 2016 SmoDav
+ *
+ *   For the full copyright and license information, please view the LICENSE
+ *   file that was distributed with this source code.
+ */
 use Mockery as mocker;
 use SmoDav\Mpesa\Cashier;
 use SmoDav\Mpesa\MpesaRepository;
@@ -17,9 +24,9 @@ class MpesaTest extends PHPUnit
     public function setUp()
     {
         $this->transactionGenerator = mocker::mock('SmoDav\Mpesa\Contracts\Transactable');
-        $this->store = mocker::mock('SmoDav\Mpesa\Contracts\ConfigurationStore');
-        $this->transactor = mocker::mock('SmoDav\Mpesa\Transactor');
-        $this->nativeStore = new NativeConfig();
+        $this->store                = mocker::mock('SmoDav\Mpesa\Contracts\ConfigurationStore');
+        $this->transactor           = mocker::mock('SmoDav\Mpesa\Transactor');
+        $this->nativeStore          = new NativeConfig();
     }
 
     /** @test */

@@ -1,5 +1,12 @@
 <?php
-
+/*
+ *   This file is part of the Smodav Mpesa library.
+ *
+ *   Copyright (c) 2016 SmoDav
+ *
+ *   For the full copyright and license information, please view the LICENSE
+ *   file that was distributed with this source code.
+ */
 namespace SmoDav\Mpesa;
 
 use Http\Adapter\AdapterInterface;
@@ -11,20 +18,16 @@ class MpesaServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
-     *
-     * @return void
      */
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../../config/mpesa.php' => config_path('mpesa.php')
+            __DIR__ . '/../../config/mpesa.php' => config_path('mpesa.php')
         ]);
     }
 
     /**
      * Register the application services.
-     *
-     * @return void
      */
     public function register()
     {
