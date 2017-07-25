@@ -1,4 +1,12 @@
 <?php
+/*
+ *   This file is part of the Smodav Mpesa library.
+ *
+ *   Copyright (c) 2016 SmoDav
+ *
+ *   For the full copyright and license information, please view the LICENSE
+ *   file that was distributed with this source code.
+ */
 namespace SmoDav\Mpesa;
 
 use SmoDav\Mpesa\Exceptions\InvalidRequestException;
@@ -7,7 +15,7 @@ use SmoDav\Mpesa\Exceptions\InvalidRequestException;
  * Class Validator
  *
  * @category PHP
- * @package  SmoDav\Mpesa
+ *
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class Validator
@@ -39,7 +47,7 @@ class Validator
     public static function validate($data = [])
     {
         foreach (static::RULES as $value) {
-            if (! array_key_exists($value, $data)) {
+            if (! \array_key_exists($value, $data)) {
                 throw new InvalidRequestException(InvalidRequestException::ERRORS[$value]);
             }
         }

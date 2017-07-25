@@ -1,5 +1,12 @@
 <?php
-
+/*
+ *   This file is part of the Smodav Mpesa library.
+ *
+ *   Copyright (c) 2016 SmoDav
+ *
+ *   For the full copyright and license information, please view the LICENSE
+ *   file that was distributed with this source code.
+ */
 namespace SmoDav\Mpesa;
 
 use Illuminate\Config\Repository;
@@ -9,7 +16,7 @@ use SmoDav\Mpesa\Contracts\ConfigurationStore;
  * Class LaravelConfig
  *
  * @category PHP
- * @package  SmoDav\Mpesa
+ *
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class LaravelConfig implements ConfigurationStore
@@ -33,7 +40,7 @@ class LaravelConfig implements ConfigurationStore
      * Get given config value from the configuration store.
      *
      * @param string $key
-     * @param null $default
+     * @param null   $default
      *
      * @return mixed
      */

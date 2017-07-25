@@ -1,5 +1,12 @@
 <?php
-
+/*
+ *   This file is part of the Smodav Mpesa library.
+ *
+ *   Copyright (c) 2016 SmoDav
+ *
+ *   For the full copyright and license information, please view the LICENSE
+ *   file that was distributed with this source code.
+ */
 namespace SmoDav\Mpesa;
 
 use SmoDav\Mpesa\Contracts\ConfigurationStore;
@@ -62,7 +69,6 @@ class MpesaRepository
      */
     private $store;
 
-
     /**
      * Transactor constructor.
      *
@@ -98,8 +104,8 @@ class MpesaRepository
      */
     protected function setupBroker()
     {
-        $this->endpoint = $this->store->get('mpesa.endpoint');
-        $this->callbackUrl = $this->store->get('mpesa.callback_url');
+        $this->endpoint       = $this->store->get('mpesa.endpoint');
+        $this->callbackUrl    = $this->store->get('mpesa.callback_url');
         $this->callbackMethod = $this->store->get('mpesa.callback_method');
     }
 
@@ -109,8 +115,8 @@ class MpesaRepository
     protected function setupPaybill()
     {
         $this->paybillNumber = $this->store->get('mpesa.paybill_number');
-        $this->passkey = $this->store->get('mpesa.passkey');
-        $this->demo = $this->store->get('mpesa.demo');
+        $this->passkey       = $this->store->get('mpesa.passkey');
+        $this->demo          = $this->store->get('mpesa.demo');
     }
 
     /**

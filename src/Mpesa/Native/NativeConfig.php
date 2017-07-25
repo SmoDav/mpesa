@@ -1,5 +1,12 @@
 <?php
-
+/*
+ *   This file is part of the Smodav Mpesa library.
+ *
+ *   Copyright (c) 2016 SmoDav
+ *
+ *   For the full copyright and license information, please view the LICENSE
+ *   file that was distributed with this source code.
+ */
 namespace SmoDav\Mpesa\Native;
 
 use SmoDav\Mpesa\Contracts\ConfigurationStore;
@@ -8,7 +15,7 @@ use SmoDav\Mpesa\Contracts\ConfigurationStore;
  * Class NativeConfig
  *
  * @category PHP
- * @package  SmoDav\Mpesa\Native
+ *
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class NativeConfig implements ConfigurationStore
@@ -26,13 +33,13 @@ class NativeConfig implements ConfigurationStore
     public function __construct()
     {
         $defaultConfig = require(__DIR__ . '/../../../config/mpesa.php');
-        $userConfig = __DIR__ . '/../../../../../../config/mpesa.php';
-        $custom = [];
-        if (is_file($userConfig)) {
+        $userConfig    = __DIR__ . '/../../../../../../config/mpesa.php';
+        $custom        = [];
+        if (\is_file($userConfig)) {
             $custom = require($userConfig);
         }
 
-        $this->config = array_merge($defaultConfig, $custom);
+        $this->config = \array_merge($defaultConfig, $custom);
     }
 
     /**
@@ -40,12 +47,10 @@ class NativeConfig implements ConfigurationStore
      *
      * @param      $key
      * @param null $default
-     *
-     * @return null
      */
     public function get($key, $default = null)
     {
-        $itemKey = explode('.', $key)[1];
+        $itemKey = \explode('.', $key)[1];
 
         if (isset($this->config[$itemKey])) {
             return $this->config[$itemKey];
