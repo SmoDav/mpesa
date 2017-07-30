@@ -1,4 +1,4 @@
-# M-PESA API SOAP Package
+# M-PESA ONLINE CHECKOUT API Package
 [![Build Status](https://travis-ci.org/SmoDav/mpesa.svg?branch=master)](https://travis-ci.org/SmoDav/mpesa)
 [![Total Downloads](https://poser.pugx.org/smodav/mpesa/d/total.svg)](https://packagist.org/packages/smodav/mpesa)
 [![Latest Stable Version](https://poser.pugx.org/smodav/mpesa/v/stable.svg)](https://packagist.org/packages/smodav/mpesa)
@@ -6,7 +6,7 @@
 [![License](https://poser.pugx.org/smodav/mpesa/license.svg)](https://packagist.org/packages/smodav/mpesa)
 
 This is a PHP package for the Safaricom's M-Pesa API. 
-The API allows a merchant to initiate C2B (paybill via web) transactions.
+The API allows a merchant to initiate C2B online checkout (paybill via web) transactions.
 The merchant submits authentication details, transaction details, callback url and callback method. 
 
 After request submission, the merchant receives instant feedback with validity status of their requests. 
@@ -33,6 +33,13 @@ Now proceed to require the package.
 ### General Install
 
 Run `composer require smodav/mpesa` to get the latest stable version of the package.
+
+
+## Migration from v1
+
+v2 makes a change on the response of the transaction by adding a new `SmoDav\Mpesa\Response` object. When migrating from
+v1 change the consumption of the response since it no longer provides an instance of `GuzzleHttp\Psr7\Stream`
+but an instance of `SmoDav\Mpesa\Response` with two properties `transactionId` and `response`.
 
 ### Laravel
 
@@ -222,7 +229,8 @@ public function checkout()
 
 ## Result
 
-The result of any methods above will be an instance of `GuzzleHttp\Psr7\Response`.
+The result of any methods above will be an instance of `SmoDav\Mpesa\Response`. This will provide you with the merchant transaction id
+that was generated for the request and the response from the M-Pesa API.
 
 ## NOTE
 
