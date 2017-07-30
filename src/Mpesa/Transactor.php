@@ -1,12 +1,5 @@
 <?php
-/*
- *   This file is part of the Smodav Mpesa library.
- *
- *   Copyright (c) 2016 SmoDav
- *
- *   For the full copyright and license information, please view the LICENSE
- *   file that was distributed with this source code.
- */
+
 namespace SmoDav\Mpesa;
 
 use Carbon\Carbon;
@@ -98,7 +91,8 @@ class Transactor
     /**
      * Transactor constructor.
      *
-     * @param MpesaRepository $repository
+     * @param MpesaRepository  $repository
+     * @param AdapterInterface $client
      */
     public function __construct(MpesaRepository $repository, AdapterInterface $client)
     {
@@ -270,7 +264,7 @@ class Transactor
 
         $this->validateResponse($response);
 
-        return $response;
+        return new Response($this->transactionNumber, $response);
     }
 
     /**

@@ -1,13 +1,4 @@
 <?php
-$header = <<<'EOF'
-  This file is part of the Smodav Mpesa library.
- 
-  Copyright (c) 2016 SmoDav
- 
-  For the full copyright and license information, please view the LICENSE
-  file that was distributed with this source code.
-EOF;
-
 return PhpCsFixer\Config::create()
     ->setRiskyAllowed(true)
     ->setRules(
@@ -26,7 +17,6 @@ return PhpCsFixer\Config::create()
             'encoding' => true,
             'full_opening_tag' => true,
             'function_declaration' => true,
-            'header_comment' => ['header' => $header, 'separate' => 'none'],
             'indentation_type' => true,
             'line_ending' => true,
             'lowercase_constants' => true,

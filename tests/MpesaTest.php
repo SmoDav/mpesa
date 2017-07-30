@@ -1,12 +1,5 @@
 <?php
-/*
- *   This file is part of the Smodav Mpesa library.
- *
- *   Copyright (c) 2016 SmoDav
- *
- *   For the full copyright and license information, please view the LICENSE
- *   file that was distributed with this source code.
- */
+
 use Mockery as mocker;
 use SmoDav\Mpesa\Cashier;
 use SmoDav\Mpesa\MpesaRepository;

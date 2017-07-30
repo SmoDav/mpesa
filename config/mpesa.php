@@ -1,8 +1,6 @@
 <?php
 
-
 return [
-
 
     /*
     |--------------------------------------------------------------------------
@@ -30,7 +28,7 @@ return [
     |
     */
 
-    'endpoint' => "https://safaricom.co.ke/mpesa_online/lnmo_checkout_server.php?wsdl",
+    'endpoint' => 'https://safaricom.co.ke/mpesa_online/lnmo_checkout_server.php?wsdl',
 
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +40,7 @@ return [
     |
     */
 
-    'callback_url' => "http://payments.smodavproductions.com/checkout.php",
+    'callback_url' => 'http://payments.smodavproductions.com/checkout.php',
 
     /*
     |--------------------------------------------------------------------------
@@ -56,7 +54,7 @@ return [
     |
     */
 
-    'callback_method' => "POST",
+    'callback_method' => 'POST',
 
     /*
     |--------------------------------------------------------------------------
