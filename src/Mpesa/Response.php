@@ -2,7 +2,7 @@
 
 namespace SmoDav\Mpesa;
 
-use GuzzleHttp\Psr7\Stream;
+use GuzzleHttp\Psr7\Response as GuzzleResponse;
 
 /**
  * Class MpesaResponse.
@@ -18,7 +18,7 @@ class Response
      */
     public $transactionId;
     /**
-     * @var Stream
+     * @var GuzzleResponse
      */
     public $response;
 
@@ -26,9 +26,9 @@ class Response
      * MpesaResponse constructor.
      *
      * @param $transactionId
-     * @param $response
+     * @param GuzzleResponse $response
      */
-    public function __construct($transactionId, Stream $response)
+    public function __construct($transactionId, GuzzleResponse $response)
     {
         $this->transactionId = $transactionId;
         $this->response      = $response;

@@ -1,18 +1,19 @@
 <?php
-
 namespace SmoDav\Mpesa;
 
 use Carbon\Carbon;
 use DOMDocument;
-use Http\Adapter\AdapterInterface;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Response;
 use SmoDav\Mpesa\Contracts\Transactable;
 use SmoDav\Mpesa\Exceptions\TransactionException;
+use SmoDav\Mpesa\Response as MpesaResponse;
 
 /**
  * Class Transactor
  *
  * @category PHP
- *
+ * @package  SmoDav\Mpesa
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class Transactor
@@ -91,12 +92,17 @@ class Transactor
     /**
      * Transactor constructor.
      *
-     * @param MpesaRepository  $repository
-     * @param AdapterInterface $client
+     * @param MpesaRepository $repository
      */
-    public function __construct(MpesaRepository $repository, AdapterInterface $client)
+    public function __construct(MpesaRepository $repository)
     {
-        $this->client     = $client;
+        $this->client = new Client([
+            'verify'          => false,
+            'timeout'         => 60,
+            'allow_redirects' => false,
+            'expect'          => false,
+        ]);
+
         $this->repository = $repository;
     }
 
@@ -111,8 +117,8 @@ class Transactor
      */
     public function process($amount, $number, $referenceId)
     {
-        $this->amount      = $amount;
-        $this->number      = $number;
+        $this->amount = $amount;
+        $this->number = $number;
         $this->referenceId = $referenceId;
         $this->initialize();
 
@@ -171,7 +177,7 @@ class Transactor
     public function setPayBill($payBillNumber, $payBillPassKey)
     {
         $this->repository->paybillNumber = $payBillNumber;
-        $this->repository->passkey       = $payBillPassKey;
+        $this->repository->passkey = $payBillPassKey;
 
         return $this;
     }
@@ -188,7 +194,7 @@ class Transactor
         }
 
         $passwordSource = $this->repository->paybillNumber . $this->repository->passkey . $this->timestamp;
-        $this->password = \base64_encode(\hash('sha256', $passwordSource));
+        $this->password = base64_encode(hash("sha256", $passwordSource));
 
         return $this->password;
     }
@@ -215,7 +221,6 @@ class Transactor
      * Get the transaction number from the Transactible implementer.
      *
      * @return string
-     *
      * @throws \Exception
      */
     private function getTransactionNumber()
@@ -246,10 +251,10 @@ class Transactor
      */
     private function generateRequest($document)
     {
-        $this->request = \file_get_contents(__DIR__ . '/soap/' . $document);
+        $this->request = file_get_contents(__DIR__ . '/soap/' . $document);
 
         foreach ($this->keys as $key => $value) {
-            $this->request = \str_replace($key, $value, $this->request);
+            $this->request = str_replace($key, $value, $this->request);
         }
     }
 
@@ -260,11 +265,13 @@ class Transactor
      */
     private function send()
     {
-        $response = $this->client->post($this->repository->endpoint, $this->request);
+        $response = $this->client->request('POST', $this->repository->endpoint, [
+            'body' => $this->request
+        ]);
 
         $this->validateResponse($response);
 
-        return new Response($this->transactionNumber, $response);
+        return new MpesaResponse($this->transactionNumber, $response);
     }
 
     /**
@@ -276,8 +283,8 @@ class Transactor
      */
     private function validateResponse($response)
     {
-        $message = $response->getContents();
-        $response->rewind();
+        $message = $response->getBody()->getContents();
+        $response->getBody()->rewind();
         $doc = new DOMDocument();
         $doc->loadXML($message);
 

@@ -29,15 +29,6 @@ class MpesaServiceProvider extends ServiceProvider
         $this->app->singleton('MpesaRepository', function () {
             return $this->app->make(MpesaRepository::class);
         });
-        // Let us register our http adapter
-        $this->bind(AdapterInterface::class, function () {
-            return new GuzzleHttpAdapter([
-                                            'verify'          => false,
-                                            'timeout'         => 60,
-                                            'allow_redirects' => false,
-                                            'expect'          => false,
-                                        ]);
-        });
 
         $this->app->bind('mpesa', function () {
             return $this->app->make(Cashier::class);

@@ -14,15 +14,7 @@ class Mpesa extends Cashier
      */
     public function __construct()
     {
-        $config     = new NativeConfig;
-        $repository = new MpesaRepository($config);
-        $client     = new GuzzleHttpAdapter([
-                                            'verify'          => false,
-                                            'timeout'         => 60,
-                                            'allow_redirects' => false,
-                                            'expect'          => false,
-                                        ]);
-        $transactor = new Transactor($repository, $client);
+        $transactor = new Transactor(new MpesaRepository(new NativeConfig));
 
         parent::__construct($transactor);
     }
