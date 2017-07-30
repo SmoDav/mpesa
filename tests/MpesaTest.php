@@ -39,7 +39,7 @@ class MpesaTest extends PHPUnit
     /** @test */
     public function it_throws_exception_on_invalid_amount()
     {
-        $this->expectException('InvalidArgumentException');
+        $this->setExpectedException('InvalidArgumentException');
         $this->cashier = new Cashier($this->transactor);
         $this->cashier->request('twenty');
     }
@@ -47,7 +47,7 @@ class MpesaTest extends PHPUnit
     /** @test */
     public function it_throws_exception_on_invalid_subscriber_number()
     {
-        $this->expectException('InvalidArgumentException');
+        $this->setExpectedException('InvalidArgumentException');
         $this->cashier = new Cashier($this->transactor);
         $this->cashier->from(0722000000);
     }

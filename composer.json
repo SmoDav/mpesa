@@ -28,7 +28,7 @@
     },
     "require-dev": {
         "mockery/mockery": "dev-master",
-        "phpunit/phpunit": "~5.7|~6.1"
+        "phpunit/phpunit": "4.*"
     },
     "extra": {
         "laravel": {
