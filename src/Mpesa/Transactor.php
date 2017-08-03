@@ -75,6 +75,8 @@ class Transactor
      */
     protected $transactionNumber;
 
+    protected $response;
+
     /**
      * The Guzzle Client used to make the request to the endpoint.
      *
@@ -271,6 +273,8 @@ class Transactor
 
         $this->validateResponse($response);
 
+        $this->response = $response;
+
         return new MpesaResponse($this->transactionNumber, $response);
     }
 
@@ -297,5 +301,60 @@ class Transactor
 
             throw new TransactionException('Failure - ' . $responseDescription);
         }
+    }
+
+    /**
+     * Validate a transaction.
+     *
+     * @param $transactionId
+     * @return mixed|\Psr\Http\Message\ResponseInterface
+     */
+    public function validate($transactionId)
+    {
+        $this->initialize();
+        $this->transactionNumber = $transactionId;
+        $this->keys['VA_TRANS_ID'] = $this->transactionNumber;
+
+        $this->generateRequest('status.xml');
+
+        try {
+            $this->send();
+        } catch (\Exception $exception) {
+            if ($exception->getMessage() == 'Failure - Transaction expired') {
+                return new MpesaResponse($this->transactionNumber, $this->checkStatus(true));
+            }
+
+            throw $exception;
+        }
+
+        return new MpesaResponse($this->transactionNumber, $this->checkStatus());
+    }
+
+    private function checkStatus($failed = false)
+    {
+        $status = new \stdClass();
+        if ($failed) {
+            $status->desctiption = 'Transaction expired';
+            $status->transaction_number = 'N/A';
+            $status->transaction_date = null;
+            $status->success = false;
+
+            return $status;
+        }
+
+        $message = $this->response->getBody()->getContents();
+        $this->response->getBody()->rewind();
+        $doc = new DOMDocument();
+        $doc->loadXML($message);
+
+        $status->desctiption = $doc->getElementsByTagName('DESCRIPTION')->item(0)->nodeValue;
+        $status->transaction_number = $doc->getElementsByTagName('MPESA_TRX_ID')->item(0)->nodeValue;
+        $status->transaction_date = $doc->getElementsByTagName('MPESA_TRX_DATE')->item(0)->nodeValue;
+        $status->transaction_id = $doc->getElementsByTagName('TRX_ID')->item(0)->nodeValue;
+        $status->number = $doc->getElementsByTagName('MSISDN')->item(0)->nodeValue;
+        $status->amount = $doc->getElementsByTagName('AMOUNT')->item(0)->nodeValue;
+        $status->success = strtolower($doc->getElementsByTagName('TRX_STATUS')->item(0)->nodeValue) == 'success';
+
+        return $status;
     }
 }

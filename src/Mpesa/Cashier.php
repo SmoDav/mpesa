@@ -123,4 +123,15 @@ class Cashier
     {
         return $this->transactor->process($this->amount, $this->number, $this->referenceId);
     }
+
+    /**
+     * Validate a transaction.
+     *
+     * @param $transactionId
+     * @return mixed|\Psr\Http\Message\ResponseInterface
+     */
+    public function validate($transactionId)
+    {
+        return $this->transactor->validate($transactionId);
+    }
 }

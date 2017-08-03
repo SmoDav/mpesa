@@ -26,9 +26,9 @@ class Response
      * MpesaResponse constructor.
      *
      * @param $transactionId
-     * @param GuzzleResponse $response
+     * @param GuzzleResponse | \stdClass $response
      */
-    public function __construct($transactionId, GuzzleResponse $response)
+    public function __construct($transactionId, $response)
     {
         $this->transactionId = $transactionId;
         $this->response      = $response;

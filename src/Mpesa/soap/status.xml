@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="tns:ns">
+    <soapenv:Header>
+        <tns:CheckOutHeader>
+            <MERCHANT_ID>VA_PAYBILL</MERCHANT_ID>
+            <PASSWORD>VA_PASSWORD</PASSWORD>
+            <TIMESTAMP>VA_TIMESTAMP</TIMESTAMP>
+        </tns:CheckOutHeader>
+    </soapenv:Header>
+    <soapenv:Body>
+        <tns:transactionStatusRequest>
+            <TRX_ID>?</TRX_ID>
+            <MERCHANT_TRANSACTION_ID>VA_TRANS_ID</MERCHANT_TRANSACTION_ID>
+        </tns:transactionStatusRequest>
+    </soapenv:Body>
+</soapenv:Envelope>
