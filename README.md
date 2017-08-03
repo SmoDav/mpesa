@@ -232,6 +232,33 @@ public function checkout()
 The result of any methods above will be an instance of `SmoDav\Mpesa\Response`. This will provide you with the merchant transaction id
 that was generated for the request and the response from the M-Pesa API.
 
+## Transaction Validation
+
+To validate a transaction, you will be required to use the merchant transaction id. The response is an instance of 
+`SmoDav\Mpesa\Response` and the response object is an `stdClass` instance with a success property that denotes the status
+of the transaction and the `transaction_number` property having the mpesa transaction number.
+
+```php
+use SmoDav\Mpesa\Native\Mpesa;
+
+$mpesa = new Mpesa;
+
+$status = $mpesa->validate('h3E3N1zv7lIhSlX1i');
+
+```
+
+And on Laravel
+
+```php
+
+$status = mpesa()->validate('h3E3N1zv7lIhSlX1i');
+
+//or
+
+$status = Mpesa::validate('h3E3N1zv7lIhSlX1i');
+
+```
+
 ## NOTE
 
 The use of Safaricom's demo paybill number will actually deduct the amount from your M-Pesa account. For the testing purposes please use the minimum transaction amount which is KES 10.
