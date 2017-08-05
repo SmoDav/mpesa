@@ -95,7 +95,9 @@ Register callback URLs
 ##### Vanilla
 
 ```php
-$registrar = new Registrar($engine)
+use SmoDav\Mpesa\C2B\Registrar;
+
+$registrar = new Registrar($engine);
     
 // fluent implementation
 $response = $registrar->register(600000)
@@ -128,6 +130,8 @@ Initiate an C2B STK Push request.
 ##### Vanilla
 
 ```php
+use SmoDav\Mpesa\C2B\STK;
+
 $stk = new STK($engine);
     
 // fluent implementation
@@ -163,6 +167,8 @@ Validate the phone number and get details about it.
 ##### Vanilla
 
 ```php
+use SmoDav\Mpesa\C2B\Identity;
+
 $identity = new Identity($engine);
 $response = $identity->validate(254722000000);
 ```
