@@ -11,6 +11,7 @@ use SmoDav\Mpesa\Repositories\EndpointsRepository;
  * Class Registrar.
  *
  * @category PHP
+ *
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class Registrar
@@ -55,11 +56,12 @@ class Registrar
 
     /**
      * Registrar constructor.
+     *
      * @param Core $engine
      */
     public function __construct(Core $engine)
     {
-        $this->engine = $engine;
+        $this->engine   = $engine;
         $this->endpoint = EndpointsRepository::build(MPESA_REGISTER);
     }
 
@@ -67,6 +69,7 @@ class Registrar
      * Submit the short code to be registered.
      *
      * @param $shortCode
+     *
      * @return $this
      */
     public function register($shortCode)
@@ -80,6 +83,7 @@ class Registrar
      * Submit the callback to be used for validation.
      *
      * @param $validationURL
+     *
      * @return $this
      */
     public function onValidation($validationURL)
@@ -93,6 +97,7 @@ class Registrar
      * Submit the callback to be used for confirmation.
      *
      * @param $confirmationURL
+     *
      * @return $this
      */
     public function onConfirmation($confirmationURL)
@@ -106,6 +111,7 @@ class Registrar
      * Set the transaction status on timeout.
      *
      * @param string $onTimeout
+     *
      * @return $this
      */
     public function onTimeout($onTimeout = 'Completed')
@@ -126,7 +132,9 @@ class Registrar
      * @param null $confirmationURL
      * @param null $validationURL
      * @param null $onTimeout
+     *
      * @return mixed
+     *
      * @throws \Exception
      */
     public function submit($shortCode = null, $confirmationURL = null, $validationURL = null, $onTimeout = null)
@@ -136,16 +144,16 @@ class Registrar
         }
 
         $body = [
-            'ShortCode' => $shortCode ?: $this->shortCode,
-            'ResponseType' => $onTimeout ?: $this->onTimeout,
+            'ShortCode'       => $shortCode ?: $this->shortCode,
+            'ResponseType'    => $onTimeout ?: $this->onTimeout,
             'ConfirmationURL' => $confirmationURL ?: $this->confirmationURL,
-            'ValidationURL' => $validationURL ?: $this->validationURL
+            'ValidationURL'   => $validationURL ?: $this->validationURL
         ];
 
         try {
             $response = $this->makeRequest($body);
 
-            return json_decode($response->getBody());
+            return \json_decode($response->getBody());
         } catch (RequestException $exception) {
             throw $this->generateException($exception->getResponse()->getReasonPhrase());
         }
@@ -155,6 +163,7 @@ class Registrar
      * Initiate the registration request.
      *
      * @param array $body
+     *
      * @return mixed|\Psr\Http\Message\ResponseInterface
      */
     private function makeRequest($body = [])
@@ -162,7 +171,7 @@ class Registrar
         return $this->engine->client->request('POST', $this->endpoint, [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->engine->auth->authenticate(),
-                'Content-Type' => 'application/json',
+                'Content-Type'  => 'application/json',
             ],
             'json' => $body,
         ]);
@@ -170,6 +179,7 @@ class Registrar
 
     /**
      * @param $getReasonPhrase
+     *
      * @return \Exception
      */
     private function generateException($getReasonPhrase)

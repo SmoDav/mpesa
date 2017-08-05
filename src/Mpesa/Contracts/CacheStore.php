@@ -16,6 +16,7 @@ interface CacheStore
      *
      * @param $key
      * @param $default
+     *
      * @return mixed
      */
     public function get($key, $default = null);
@@ -23,10 +24,9 @@ interface CacheStore
     /**
      * Store an item in the cache.
      *
-     * @param  string  $key
-     * @param  mixed   $value
-     * @param  \DateTimeInterface|\DateInterval|float|int  $minutes
-     * @return void
+     * @param string                                     $key
+     * @param mixed                                      $value
+     * @param \DateTimeInterface|\DateInterval|float|int $minutes
      */
     public function put($key, $value, $minutes = null);
 }

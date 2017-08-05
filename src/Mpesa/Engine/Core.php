@@ -12,6 +12,7 @@ use SmoDav\Mpesa\Repositories\EndpointsRepository;
  * Class Core.
  *
  * @category PHP
+ *
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class Core
@@ -43,14 +44,15 @@ class Core
 
     /**
      * Core constructor.
-     * @param Client $client
+     *
+     * @param Client             $client
      * @param ConfigurationStore $configStore
-     * @param CacheStore $cacheStore
+     * @param CacheStore         $cacheStore
      */
     public function __construct(Client $client, ConfigurationStore $configStore, CacheStore $cacheStore)
     {
         $this->config = $configStore;
-        $this->cache = $cacheStore;
+        $this->cache  = $cacheStore;
         $this->client = $client;
 
         $this->initialize();

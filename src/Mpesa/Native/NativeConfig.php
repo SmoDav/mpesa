@@ -13,7 +13,6 @@ use SmoDav\Mpesa\Contracts\ConfigurationStore;
  */
 class NativeConfig implements ConfigurationStore
 {
-
     //TODO: change implementation so user can enter the location.
 
     /**

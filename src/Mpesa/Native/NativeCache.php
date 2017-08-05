@@ -21,6 +21,7 @@ class NativeCache implements CacheStore
 
     /**
      * NativeCache constructor.
+     *
      * @param NativeConfig $config
      */
     public function __construct(NativeConfig $config)
@@ -38,13 +39,13 @@ class NativeCache implements CacheStore
      */
     public function get($key, $default = null)
     {
-        $location = trim($this->config->get('mpesa.cache_location')) . '/.mpc';
+        $location = \trim($this->config->get('mpesa.cache_location')) . '/.mpc';
 
-        if (! is_file($location)) {
+        if (! \is_file($location)) {
             return $default;
         }
 
-        $cache = unserialize(file_get_contents($location));
+        $cache = \unserialize(\file_get_contents($location));
         $cache = $this->cleanCache($cache, $location);
 
         if (! isset($cache[$key])) {
@@ -57,35 +58,34 @@ class NativeCache implements CacheStore
     /**
      * Store an item in the cache.
      *
-     * @param  string $key
-     * @param  mixed $value
-     * @param  \DateTimeInterface|\DateInterval|float|int $minutes
-     * @return void
+     * @param string                                     $key
+     * @param mixed                                      $value
+     * @param \DateTimeInterface|\DateInterval|float|int $minutes
      */
     public function put($key, $value, $minutes = null)
     {
-        $directory = trim($this->config->get('mpesa.cache_location'));
-        $location = $directory . '/.mpc';
+        $directory = \trim($this->config->get('mpesa.cache_location'));
+        $location  = $directory . '/.mpc';
 
-        if (! is_dir($directory)) {
-            mkdir($directory, 0755, true);
+        if (! \is_dir($directory)) {
+            \mkdir($directory, 0755, true);
         }
         $initial = [];
-        if (is_file($location)) {
-            $initial = unserialize(file_get_contents($location));
+        if (\is_file($location)) {
+            $initial = \unserialize(\file_get_contents($location));
             $initial = $this->cleanCache($initial, $location);
         }
 
         $minutes = $minutes ? Carbon::now()->addMinutes($minutes)->toDateTimeString() : null;
         $payload = [$key => ['v' => $value, 't' => $minutes]];
-        $payload = serialize(array_merge($payload, $initial));
+        $payload = \serialize(\array_merge($payload, $initial));
 
-        file_put_contents($location, $payload);
+        \file_put_contents($location, $payload);
     }
 
     private function cleanCache($initial, $location)
     {
-        $initial = array_filter($initial, function ($value) {
+        $initial = \array_filter($initial, function ($value) {
             if (! $value['t']) {
                 return true;
             }
@@ -97,7 +97,7 @@ class NativeCache implements CacheStore
             return true;
         });
 
-        file_put_contents($location, serialize($initial));
+        \file_put_contents($location, \serialize($initial));
 
         return $initial;
     }

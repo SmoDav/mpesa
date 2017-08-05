@@ -53,7 +53,7 @@ class ServiceProvider extends RootProvider
             return $this->app->make(Identity::class);
         });
 
-//        $this->app->bind('mpesa', function () {
+        //        $this->app->bind('mpesa', function () {
 //            return $this->app->make(Cashier::class);
 //        });
     }

@@ -9,6 +9,7 @@ use SmoDav\Mpesa\Exceptions\ConfigurationException;
  * Class EndpointsRepository.
  *
  * @category PHP
+ *
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class EndpointsRepository
@@ -63,12 +64,12 @@ class EndpointsRepository
     {
         $status = $this->store->get('mpesa.demo', 'sandbox');
 
-        if (!in_array($status, ['sandbox', 'production'])) {
+        if (!\in_array($status, ['sandbox', 'production'])) {
             throw new ConfigurationException('Invalid package status: ' . $status);
         }
 
         $this->packageStatus = $status;
-        $this->baseEndpoint = $status == 'production' ? MPESA_PRODUCTION : MPESA_SANDBOX;
+        $this->baseEndpoint  = $status == 'production' ? MPESA_PRODUCTION : MPESA_SANDBOX;
     }
 
     /**

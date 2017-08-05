@@ -20,7 +20,7 @@ class Identity
      */
     public function __construct(Core $engine)
     {
-        $this->engine = $engine;
+        $this->engine   = $engine;
         $this->endpoint = EndpointsRepository::build(MPESA_ID_CHECK);
     }
 
@@ -30,31 +30,31 @@ class Identity
             throw new \InvalidArgumentException('The subscriber number must start with 2547');
         }
 
-        $time = Carbon::now()->format('YmdHis');
-        $shortCode = $this->engine->config->get('mpesa.short_code');
-        $passkey = $this->engine->config->get('mpesa.passkey');
+        $time            = Carbon::now()->format('YmdHis');
+        $shortCode       = $this->engine->config->get('mpesa.short_code');
+        $passkey         = $this->engine->config->get('mpesa.passkey');
         $defaultCallback = $this->engine->config->get('mpesa.id_validation_callback');
-        $initiator = $this->engine->config->get('mpesa.initiator');
-        $password = base64_encode($shortCode . ':' . $passkey . ':' . $time);
+        $initiator       = $this->engine->config->get('mpesa.initiator');
+        $password        = \base64_encode($shortCode . ':' . $passkey . ':' . $time);
 
         $body = [
             //Fill in the request parameters with valid values
-            'Initiator' => $initiator,
+            'Initiator'         => $initiator,
             'BusinessShortCode' => $shortCode,
-            'Password' => $password,
-            'Timestamp' => $time,
-            'TransactionType' => 'CheckIdentity',
-            'PhoneNumber' => $number,
-            'CallBackURL' => $callback ?: $defaultCallback,
-            'TransactionDesc' => ' '
+            'Password'          => $password,
+            'Timestamp'         => $time,
+            'TransactionType'   => 'CheckIdentity',
+            'PhoneNumber'       => $number,
+            'CallBackURL'       => $callback ?: $defaultCallback,
+            'TransactionDesc'   => ' '
         ];
 
         try {
             $response = $this->makeRequest($body);
 
-            return json_decode($response->getBody());
+            return \json_decode($response->getBody());
         } catch (RequestException $exception) {
-            return json_decode($exception->getResponse()->getBody());
+            return \json_decode($exception->getResponse()->getBody());
         }
     }
 
@@ -62,6 +62,7 @@ class Identity
      * Initiate the request.
      *
      * @param array $body
+     *
      * @return mixed|\Psr\Http\Message\ResponseInterface
      */
     private function makeRequest($body = [])
@@ -69,7 +70,7 @@ class Identity
         return $this->engine->client->request('POST', $this->endpoint, [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->engine->auth->authenticate(),
-                'Content-Type' => 'application/json',
+                'Content-Type'  => 'application/json',
             ],
             'json' => $body,
         ]);

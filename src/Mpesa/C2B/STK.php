@@ -18,11 +18,12 @@ class STK
 
     /**
      * STK constructor.
+     *
      * @param Core $engine
      */
     public function __construct(Core $engine)
     {
-        $this->engine = $engine;
+        $this->engine       = $engine;
         $this->pushEndpoint = EndpointsRepository::build(MPESA_STK_PUSH);
     }
 
@@ -66,20 +67,20 @@ class STK
     /**
      * Set the product reference number to bill the account.
      *
-     * @param int $reference
-     *
+     * @param int    $reference
      * @param string $description
+     *
      * @return $this
      */
     public function usingReference($reference, $description)
     {
-        preg_match('/[^A-Za-z0-9]/', $reference, $matches);
+        \preg_match('/[^A-Za-z0-9]/', $reference, $matches);
 
-        if (count($matches)) {
+        if (\count($matches)) {
             throw new \InvalidArgumentException('Reference should be alphanumeric.');
         }
 
-        $this->reference = $reference;
+        $this->reference   = $reference;
         $this->description = $description;
 
         return $this;
@@ -87,32 +88,32 @@ class STK
 
     public function push($amount = null, $number = null, $reference = null, $description = null)
     {
-        $time = Carbon::now()->format('YmdHis');
+        $time      = Carbon::now()->format('YmdHis');
         $shortCode = $this->engine->config->get('mpesa.short_code');
-        $passkey = $this->engine->config->get('mpesa.passkey');
-        $callback = $this->engine->config->get('mpesa.stk_callback');
-        $password = base64_encode($shortCode . ':' . $passkey . ':' . $time);
+        $passkey   = $this->engine->config->get('mpesa.passkey');
+        $callback  = $this->engine->config->get('mpesa.stk_callback');
+        $password  = \base64_encode($shortCode . ':' . $passkey . ':' . $time);
 
         $body = [
             'BusinessShortCode' => $shortCode,
-            'Password' => $password,
-            'Timestamp' => $time,
-            'TransactionType' => 'CustomerPayBillOnline',
-            'Amount' => $amount ?: $this->amount,
-            'PartyA' => $number ?: $this->number,
-            'PartyB' => $shortCode,
-            'PhoneNumber' => $number ?: $this->number,
-            'CallBackURL' => $callback,
-            'AccountReference' => $reference ?: $this->reference,
-            'TransactionDesc' => $description ?: $this->description,
+            'Password'          => $password,
+            'Timestamp'         => $time,
+            'TransactionType'   => 'CustomerPayBillOnline',
+            'Amount'            => $amount ?: $this->amount,
+            'PartyA'            => $number ?: $this->number,
+            'PartyB'            => $shortCode,
+            'PhoneNumber'       => $number ?: $this->number,
+            'CallBackURL'       => $callback,
+            'AccountReference'  => $reference ?: $this->reference,
+            'TransactionDesc'   => $description ?: $this->description,
         ];
 
         try {
             $response = $this->makeRequest($body);
 
-            return json_decode($response->getBody());
+            return \json_decode($response->getBody());
         } catch (RequestException $exception) {
-            return json_decode($exception->getResponse()->getBody());
+            return \json_decode($exception->getResponse()->getBody());
         }
     }
 
@@ -120,6 +121,7 @@ class STK
      * Initiate the request.
      *
      * @param array $body
+     *
      * @return mixed|\Psr\Http\Message\ResponseInterface
      */
     private function makeRequest($body = [])
@@ -127,7 +129,7 @@ class STK
         return $this->engine->client->request('POST', $this->pushEndpoint, [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->engine->auth->authenticate(),
-                'Content-Type' => 'application/json',
+                'Content-Type'  => 'application/json',
             ],
             'json' => $body,
         ]);
