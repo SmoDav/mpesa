@@ -4,35 +4,44 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Demo
+    | Status
     |--------------------------------------------------------------------------
     |
-    | This is a flag to set the API in demo mode and use the demo timestamp
-    | and password. When demo is set to true, set the paybill number to 898998
+    | This determines the state of the package, whether to use the sandbox or not.
     |
-    | Default: true
-    |
+    | Possible values: sandbox | production
     */
 
-    'demo' => true,
+    'status' => 'sandbox',
 
     /*
     |--------------------------------------------------------------------------
-    | API Endpoint
+    | Credentials
     |--------------------------------------------------------------------------
     |
-    | This is the default Safaricom API endpoint to be queried for transactional
-    | requests.
-    |
-    | Default: "https://safaricom.co.ke/mpesa_online/lnmo_checkout_server.php?wsdl"
-    |
+    | These are the credentials to be used to transact with the M-Pesa API
     */
 
-    'endpoint' => 'https://safaricom.co.ke/mpesa_online/lnmo_checkout_server.php?wsdl',
+    'consumer_key' => '',
+
+    'consumer_secret' => '',
+
+    'initiator' => 'testapi0297',
 
     /*
     |--------------------------------------------------------------------------
-    | Callback URL
+    | File Cache Location
+    |--------------------------------------------------------------------------
+    |
+    | This will be the location on the disk where the caching will be done.
+    |
+    */
+
+    'cache_location' => 'cache',
+
+    /*
+    |--------------------------------------------------------------------------
+    | STK Callback URL
     |--------------------------------------------------------------------------
     |
     | This is a fully qualified endpoint that will be be queried by Safaricom's
@@ -40,7 +49,19 @@ return [
     |
     */
 
-    'callback_url' => 'http://payments.smodavproductions.com/checkout.php',
+    'stk_callback' => 'http://payments.smodavproductions.com/checkout.php',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Identity Validation Callback URL
+    |--------------------------------------------------------------------------
+    |
+    | This is a fully qualified endpoint that will be be queried by Safaricom's
+    | API on completion or failure of the transaction.
+    |
+    */
+
+    'id_validation_callback' => 'http://payments.smodavproductions.com/checkout.php',
 
     /*
     |--------------------------------------------------------------------------
@@ -64,11 +85,11 @@ return [
     | This is a registered Paybill Number that will be used as the Merchant ID
     | on every transaction. This is also the account to be debited.
     |
-    | DEMO PAYBILL NUMBER: 898998
+    | DEMO PAYBILL NUMBER: 174379
     |
     */
 
-    'paybill_number' => 898998,
+    'short_code' => 174379,
 
     /*
     |--------------------------------------------------------------------------
@@ -80,7 +101,7 @@ return [
     |
     */
 
-    'passkey' => 'passkey',
+    'passkey' => 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919',
 
     /*
     |--------------------------------------------------------------------------

@@ -13,6 +13,9 @@ use SmoDav\Mpesa\Contracts\ConfigurationStore;
  */
 class NativeConfig implements ConfigurationStore
 {
+
+    //TODO: change implementation so user can enter the location.
+
     /**
      * Mpesa configuration file.
      *
@@ -40,6 +43,8 @@ class NativeConfig implements ConfigurationStore
      *
      * @param      $key
      * @param null $default
+     *
+     * @return mixed|null
      */
     public function get($key, $default = null)
     {

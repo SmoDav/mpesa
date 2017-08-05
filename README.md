@@ -34,12 +34,14 @@ Now proceed to require the package.
 
 Run `composer require smodav/mpesa` to get the latest stable version of the package.
 
+## Migration from previous versions
 
-## Migration from v1
+v3 of this API uses the new M-Pesa API thus it might break some parts of the code in the previous versions.
 
-v2 makes a change on the response of the transaction by adding a new `SmoDav\Mpesa\Response` object. When migrating from
-v1 change the consumption of the response since it no longer provides an instance of `GuzzleHttp\Psr7\Stream`
-but an instance of `SmoDav\Mpesa\Response` with two properties `transactionId` and `response`.
+### Identity
+
+$response = (new Register($core, $auth))->submit(600000, 'https://payments.smodavproductions.com/checkout.php', 'https://payments.smodavproductions.com/checkout.php');
+
 
 ### Laravel
 
@@ -232,33 +234,6 @@ public function checkout()
 The result of any methods above will be an instance of `SmoDav\Mpesa\Response`. This will provide you with the merchant transaction id
 that was generated for the request and the response from the M-Pesa API.
 
-## Transaction Validation
-
-To validate a transaction, you will be required to use the merchant transaction id. The response is an instance of 
-`SmoDav\Mpesa\Response` and the response object is an `stdClass` instance with a success property that denotes the status
-of the transaction and the `transaction_number` property having the mpesa transaction number.
-
-```php
-use SmoDav\Mpesa\Native\Mpesa;
-
-$mpesa = new Mpesa;
-
-$status = $mpesa->validate('h3E3N1zv7lIhSlX1i');
-
-```
-
-And on Laravel
-
-```php
-
-$status = mpesa()->validate('h3E3N1zv7lIhSlX1i');
-
-//or
-
-$status = Mpesa::validate('h3E3N1zv7lIhSlX1i');
-
-```
-
 ## NOTE
 
 The use of Safaricom's demo paybill number will actually deduct the amount from your M-Pesa account. For the testing purposes please use the minimum transaction amount which is KES 10.
@@ -266,3 +241,4 @@ The use of Safaricom's demo paybill number will actually deduct the amount from 
 ## License
 
 The M-Pesa Package is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
+

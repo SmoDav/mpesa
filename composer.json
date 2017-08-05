@@ -12,7 +12,8 @@
     ],
     "autoload": {
         "files": [
-            "src/Mpesa/Support/helpers.php"
+            "src/Mpesa/Support/helpers.php",
+            "src/Mpesa/Support/constants.php"
         ],
         "psr-4": {
             "SmoDav\\Mpesa\\": "src/Mpesa/"
@@ -20,25 +21,14 @@
     },
     "require": {
         "php": ">=5.6.0",
-        "illuminate/support": "~5.0",
+        "illuminate/support": "^5.0",
         "nesbot/carbon": "~1.21",
-        "weezqyd/http-adapters": "^0.0.1",
-        "guzzlehttp/guzzle": "^6.2"
-
+        "guzzlehttp/guzzle": "^6.2",
+        "phpunit/phpunit": "~5.7|~6.2",
+        "predis/predis": "^1.1"
     },
     "require-dev": {
-        "mockery/mockery": "dev-master",
-        "phpunit/phpunit": "4.*"
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "SmoDav\\Mpesa\\MpesaServiceProvider"
-            ],
-            "aliases": {
-                "Mpesa": "SmoDav\\Mpesa\\Mpesa"
-            }
-        }
+        "mockery/mockery": "dev-master"
     },
     "minimum-stability": "stable"
 }

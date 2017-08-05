@@ -1,6 +1,6 @@
 <?php
 
-namespace SmoDav\Mpesa;
+namespace SmoDav\Mpesa\Laravel;
 
 use Illuminate\Config\Repository;
 use SmoDav\Mpesa\Contracts\ConfigurationStore;
@@ -22,7 +22,7 @@ class LaravelConfig implements ConfigurationStore
     /**
      * LaravelConfiguration constructor.
      *
-     * @param MpesaRepository $repository
+     * @param Repository $repository
      */
     public function __construct(Repository $repository)
     {
