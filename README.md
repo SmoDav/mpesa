@@ -95,7 +95,7 @@ Register callback URLs
 ##### Vanilla
 
 ```php
-$registrar = new Register($engine);
+$registrar = new Registrar($engine)
     
 // fluent implementation
 $response = $registrar->register(600000)
