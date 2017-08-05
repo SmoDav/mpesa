@@ -4,7 +4,6 @@ namespace SmoDav\Mpesa\C2B;
 
 use Carbon\Carbon;
 use GuzzleHttp\Exception\RequestException;
-use SmoDav\Mpesa\Auth\Authenticator;
 use SmoDav\Mpesa\Engine\Core;
 use SmoDav\Mpesa\Repositories\EndpointsRepository;
 
@@ -12,7 +11,6 @@ class STK
 {
     protected $pushEndpoint;
     protected $engine;
-    protected $authenticator;
     protected $number;
     protected $amount;
     protected $reference;
@@ -21,12 +19,10 @@ class STK
     /**
      * STK constructor.
      * @param Core $engine
-     * @param Authenticator $authenticator
      */
-    public function __construct(Core $engine, Authenticator $authenticator)
+    public function __construct(Core $engine)
     {
         $this->engine = $engine;
-        $this->authenticator = $authenticator;
         $this->pushEndpoint = EndpointsRepository::build(MPESA_STK_PUSH);
     }
 
@@ -89,7 +85,7 @@ class STK
         return $this;
     }
 
-    public function push()
+    public function push($amount = null, $number = null, $reference = null, $description = null)
     {
         $time = Carbon::now()->format('YmdHis');
         $shortCode = $this->engine->config->get('mpesa.short_code');
@@ -102,13 +98,13 @@ class STK
             'Password' => $password,
             'Timestamp' => $time,
             'TransactionType' => 'CustomerPayBillOnline',
-            'Amount' => $this->amount,
-            'PartyA' => $this->number,
+            'Amount' => $amount ?: $this->amount,
+            'PartyA' => $number ?: $this->number,
             'PartyB' => $shortCode,
-            'PhoneNumber' => $this->number,
+            'PhoneNumber' => $number ?: $this->number,
             'CallBackURL' => $callback,
-            'AccountReference' => $this->reference,
-            'TransactionDesc' => $this->description,
+            'AccountReference' => $reference ?: $this->reference,
+            'TransactionDesc' => $description ?: $this->description,
         ];
 
         try {
@@ -130,7 +126,7 @@ class STK
     {
         return $this->engine->client->request('POST', $this->pushEndpoint, [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->authenticator->authenticate(),
+                'Authorization' => 'Bearer ' . $this->engine->auth->authenticate(),
                 'Content-Type' => 'application/json',
             ],
             'json' => $body,

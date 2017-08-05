@@ -1,18 +1,18 @@
 <?php
 
-namespace SmoDav\Mpesa\Laravel;
+namespace SmoDav\Mpesa\Laravel\Stores;
 
-use Illuminate\Config\Repository;
-use SmoDav\Mpesa\Contracts\ConfigurationStore;
+use Illuminate\Cache\Repository;
+use SmoDav\Mpesa\Contracts\CacheStore;
 
 /**
- * Class LaravelConfig
+ * Class LaravelCache
  *
  * @category PHP
  *
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
-class LaravelConfig implements ConfigurationStore
+class LaravelCache implements CacheStore
 {
     /**
      * @var MpesaRepository
@@ -40,5 +40,18 @@ class LaravelConfig implements ConfigurationStore
     public function get($key, $default = null)
     {
         return $this->repository->get($key, $default);
+    }
+
+    /**
+     * Store an item in the cache.
+     *
+     * @param  string $key
+     * @param  mixed $value
+     * @param  \DateTimeInterface|\DateInterval|float|int $minutes
+     * @return void
+     */
+    public function put($key, $value, $minutes = null)
+    {
+        $this->repository->put($key, $value, $minutes);
     }
 }

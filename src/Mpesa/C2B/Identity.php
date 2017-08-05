@@ -4,26 +4,23 @@ namespace SmoDav\Mpesa\C2B;
 
 use Carbon\Carbon;
 use GuzzleHttp\Exception\RequestException;
-use SmoDav\Mpesa\Auth\Authenticator;
 use SmoDav\Mpesa\Engine\Core;
 use SmoDav\Mpesa\Repositories\EndpointsRepository;
 
 class Identity
 {
     protected $engine;
-    protected $authenticator;
+
     protected $endpoint;
 
     /**
      * Identity constructor.
      *
      * @param Core $engine
-     * @param Authenticator $authenticator
      */
-    public function __construct(Core $engine, Authenticator $authenticator)
+    public function __construct(Core $engine)
     {
         $this->engine = $engine;
-        $this->authenticator = $authenticator;
         $this->endpoint = EndpointsRepository::build(MPESA_ID_CHECK);
     }
 
@@ -71,7 +68,7 @@ class Identity
     {
         return $this->engine->client->request('POST', $this->endpoint, [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->authenticator->authenticate(),
+                'Authorization' => 'Bearer ' . $this->engine->auth->authenticate(),
                 'Content-Type' => 'application/json',
             ],
             'json' => $body,

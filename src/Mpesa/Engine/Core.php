@@ -3,6 +3,7 @@
 namespace SmoDav\Mpesa\Engine;
 
 use GuzzleHttp\Client;
+use SmoDav\Mpesa\Auth\Authenticator;
 use SmoDav\Mpesa\Contracts\CacheStore;
 use SmoDav\Mpesa\Contracts\ConfigurationStore;
 use SmoDav\Mpesa\Repositories\EndpointsRepository;
@@ -29,10 +30,16 @@ class Core
      * @var Core
      */
     public static $instance;
+
     /**
      * @var Client
      */
     public $client;
+
+    /**
+     * @var Authenticator
+     */
+    public $auth;
 
     /**
      * Core constructor.
@@ -57,5 +64,6 @@ class Core
     private function initialize()
     {
         new EndpointsRepository($this->config);
+        $this->auth = new Authenticator($this);
     }
 }
