@@ -1,6 +1,6 @@
 <?php
 
-const MPESA_AUTH     = 'oauth/v1/generate?grant_type=client_credentials';
+const MPESA_AUTH = 'oauth/v1/generate?grant_type=client_credentials';
 const MPESA_ID_CHECK = 'mpesa/checkidentity/v1/query';
 
 const MPESA_PRODUCTION = 'oauth/v1/generate?grant_type=client_credentials';

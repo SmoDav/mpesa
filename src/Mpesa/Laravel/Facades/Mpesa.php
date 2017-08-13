@@ -5,7 +5,7 @@ namespace SmoDav\Mpesa\Laravel\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * Class Mpesa
+ * Class Mpesa.
  *
  * @category PHP
  *

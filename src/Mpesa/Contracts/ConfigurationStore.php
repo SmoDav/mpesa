@@ -3,7 +3,7 @@
 namespace SmoDav\Mpesa\Contracts;
 
 /**
- * Interface ConfigurationStore
+ * Interface ConfigurationStore.
  *
  * @category PHP
  *

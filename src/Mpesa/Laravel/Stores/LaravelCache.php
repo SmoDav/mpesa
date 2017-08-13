@@ -6,7 +6,7 @@ use Illuminate\Cache\Repository;
 use SmoDav\Mpesa\Contracts\CacheStore;
 
 /**
- * Class LaravelCache
+ * Class LaravelCache.
  *
  * @category PHP
  *

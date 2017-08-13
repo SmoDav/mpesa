@@ -5,7 +5,7 @@ namespace SmoDav\Mpesa\Laravel\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * Class STK
+ * Class STK.
  *
  * @category PHP
  *

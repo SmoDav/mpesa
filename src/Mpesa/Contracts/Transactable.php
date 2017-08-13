@@ -3,7 +3,7 @@
 namespace SmoDav\Mpesa\Contracts;
 
 /**
- * Interface Transactable
+ * Interface Transactable.
  *
  * @category PHP
  *
@@ -12,7 +12,7 @@ namespace SmoDav\Mpesa\Contracts;
 interface Transactable
 {
     /**
-     * Generate transaction number for the request
+     * Generate transaction number for the request.
      *
      * @return mixed
      */
