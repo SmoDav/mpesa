@@ -5,7 +5,7 @@ namespace SmoDav\Mpesa\Native;
 use SmoDav\Mpesa\Contracts\ConfigurationStore;
 
 /**
- * Class NativeConfig
+ * Class NativeConfig.
  *
  * @category PHP
  *
@@ -27,11 +27,11 @@ class NativeConfig implements ConfigurationStore
      */
     public function __construct()
     {
-        $defaultConfig = require(__DIR__ . '/../../../config/mpesa.php');
-        $userConfig    = __DIR__ . '/../../../../../../config/mpesa.php';
-        $custom        = [];
+        $defaultConfig = require __DIR__.'/../../../config/mpesa.php';
+        $userConfig = __DIR__.'/../../../../../../config/mpesa.php';
+        $custom = [];
         if (\is_file($userConfig)) {
-            $custom = require($userConfig);
+            $custom = require $userConfig;
         }
 
         $this->config = \array_merge($defaultConfig, $custom);

@@ -61,7 +61,7 @@ class Registrar
      */
     public function __construct(Core $engine)
     {
-        $this->engine   = $engine;
+        $this->engine = $engine;
         $this->endpoint = EndpointsRepository::build(MPESA_REGISTER);
     }
 
@@ -133,9 +133,9 @@ class Registrar
      * @param null $validationURL
      * @param null $onTimeout
      *
-     * @return mixed
-     *
      * @throws \Exception
+     *
+     * @return mixed
      */
     public function submit($shortCode = null, $confirmationURL = null, $validationURL = null, $onTimeout = null)
     {
@@ -147,7 +147,7 @@ class Registrar
             'ShortCode'       => $shortCode ?: $this->shortCode,
             'ResponseType'    => $onTimeout ?: $this->onTimeout,
             'ConfirmationURL' => $confirmationURL ?: $this->confirmationURL,
-            'ValidationURL'   => $validationURL ?: $this->validationURL
+            'ValidationURL'   => $validationURL ?: $this->validationURL,
         ];
 
         try {
@@ -170,7 +170,7 @@ class Registrar
     {
         return $this->engine->client->request('POST', $this->endpoint, [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->engine->auth->authenticate(),
+                'Authorization' => 'Bearer '.$this->engine->auth->authenticate(),
                 'Content-Type'  => 'application/json',
             ],
             'json' => $body,

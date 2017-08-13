@@ -6,7 +6,7 @@ use Illuminate\Config\Repository;
 use SmoDav\Mpesa\Contracts\ConfigurationStore;
 
 /**
- * Class LaravelConfig
+ * Class LaravelConfig.
  *
  * @category PHP
  *

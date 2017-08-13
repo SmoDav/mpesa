@@ -20,22 +20,22 @@ class Identity
      */
     public function __construct(Core $engine)
     {
-        $this->engine   = $engine;
+        $this->engine = $engine;
         $this->endpoint = EndpointsRepository::build(MPESA_ID_CHECK);
     }
 
     public function validate($number, $callback = null)
     {
-        if (! starts_with($number, '2547')) {
+        if (!starts_with($number, '2547')) {
             throw new \InvalidArgumentException('The subscriber number must start with 2547');
         }
 
-        $time            = Carbon::now()->format('YmdHis');
-        $shortCode       = $this->engine->config->get('mpesa.short_code');
-        $passkey         = $this->engine->config->get('mpesa.passkey');
+        $time = Carbon::now()->format('YmdHis');
+        $shortCode = $this->engine->config->get('mpesa.short_code');
+        $passkey = $this->engine->config->get('mpesa.passkey');
         $defaultCallback = $this->engine->config->get('mpesa.id_validation_callback');
-        $initiator       = $this->engine->config->get('mpesa.initiator');
-        $password        = \base64_encode($shortCode . ':' . $passkey . ':' . $time);
+        $initiator = $this->engine->config->get('mpesa.initiator');
+        $password = \base64_encode($shortCode.':'.$passkey.':'.$time);
 
         $body = [
             //Fill in the request parameters with valid values
@@ -46,7 +46,7 @@ class Identity
             'TransactionType'   => 'CheckIdentity',
             'PhoneNumber'       => $number,
             'CallBackURL'       => $callback ?: $defaultCallback,
-            'TransactionDesc'   => ' '
+            'TransactionDesc'   => ' ',
         ];
 
         try {
@@ -69,7 +69,7 @@ class Identity
     {
         return $this->engine->client->request('POST', $this->endpoint, [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->engine->auth->authenticate(),
+                'Authorization' => 'Bearer '.$this->engine->auth->authenticate(),
                 'Content-Type'  => 'application/json',
             ],
             'json' => $body,
