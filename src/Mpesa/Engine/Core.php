@@ -2,7 +2,7 @@
 
 namespace SmoDav\Mpesa\Engine;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use SmoDav\Mpesa\Auth\Authenticator;
 use SmoDav\Mpesa\Contracts\CacheStore;
 use SmoDav\Mpesa\Contracts\ConfigurationStore;
@@ -33,7 +33,7 @@ class Core
     public static $instance;
 
     /**
-     * @var Client
+     * @var ClientInterface
      */
     public $client;
 
@@ -45,14 +45,14 @@ class Core
     /**
      * Core constructor.
      *
-     * @param Client             $client
+     * @param ClientInterface    $client
      * @param ConfigurationStore $configStore
      * @param CacheStore         $cacheStore
      */
-    public function __construct(Client $client, ConfigurationStore $configStore, CacheStore $cacheStore)
+    public function __construct(ClientInterface $client, ConfigurationStore $configStore, CacheStore $cacheStore)
     {
         $this->config = $configStore;
-        $this->cache  = $cacheStore;
+        $this->cache = $cacheStore;
         $this->client = $client;
 
         $this->initialize();
