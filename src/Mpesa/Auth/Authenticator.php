@@ -4,6 +4,7 @@ namespace SmoDav\Mpesa\Auth;
 
 use GuzzleHttp\Exception\RequestException;
 use SmoDav\Mpesa\Engine\Core;
+use SmoDav\Mpesa\Exceptions\ErrorException;
 use SmoDav\Mpesa\Exceptions\ConfigurationException;
 use SmoDav\Mpesa\Repositories\EndpointsRepository;
 
@@ -43,7 +44,7 @@ class Authenticator
      */
     public function __construct(Core $core)
     {
-        $this->engine   = $core;
+        $this->engine = $core;
         $this->endpoint = EndpointsRepository::build(MPESA_AUTH);
         self::$instance = $this;
     }
@@ -63,7 +64,7 @@ class Authenticator
 
         try {
             $response = $this->makeRequest();
-            $body     = \json_decode($response->getBody());
+            $body = \json_decode($response->getBody());
             $this->saveCredentials($body);
 
             return $body->access_token;
@@ -77,7 +78,7 @@ class Authenticator
      *
      * @param $reason
      *
-     * @return \Exception|ConfigurationException
+     * @return ErrorException|ConfigurationException
      */
     private function generateException($reason)
     {
@@ -85,7 +86,7 @@ class Authenticator
             case 'bad request: invalid credentials':
                 return new ConfigurationException('Invalid consumer key and secret combination');
             default:
-                return new \Exception($reason);
+                return new ErrorException($reason);
         }
     }
 
@@ -96,10 +97,10 @@ class Authenticator
      */
     private function generateCredentials()
     {
-        $key    = $this->engine->config->get('mpesa.consumer_key');
+        $key = $this->engine->config->get('mpesa.consumer_key');
         $secret = $this->engine->config->get('mpesa.consumer_secret');
 
-        return \base64_encode($key . ':' . $secret);
+        return \base64_encode($key.':'.$secret);
     }
 
     /**
@@ -113,9 +114,9 @@ class Authenticator
 
         return $this->engine->client->request('GET', $this->endpoint, [
             'headers' => [
-                'Authorization' => 'Basic ' . $credentials,
-                'Content-Type'  => 'application/json',
-            ]
+                'Authorization' => 'Basic '.$credentials,
+                'Content-Type' => 'application/json',
+            ],
         ]);
     }
 

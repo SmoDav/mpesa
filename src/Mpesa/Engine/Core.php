@@ -53,7 +53,7 @@ class Core
     {
         $this->config = $configStore;
         $this->cache = $cacheStore;
-        $this->client = $client;
+        $this->setClient($client);
 
         $this->initialize();
 
@@ -67,5 +67,15 @@ class Core
     {
         new EndpointsRepository($this->config);
         $this->auth = new Authenticator($this);
+    }
+
+    /**
+     * Set http client.
+     *
+     * @param ClientInterface $client
+     **/
+    public function setClient(ClientInterface $client)
+    {
+        $this->client = $client;
     }
 }
