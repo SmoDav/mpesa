@@ -12,6 +12,7 @@ class IdentityTest extends TestCase
      * Test that authenticator works.
      *
      * @test
+     * @expectedException     \SmoDav\Mpesa\Exceptions\ErrorException
      **/
     public function testValidationOfIdentity()
     {
