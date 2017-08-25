@@ -13,7 +13,6 @@ use SmoDav\Mpesa\Exceptions\ConfigurationException;
 use SmoDav\Mpesa\Native\NativeCache;
 use SmoDav\Mpesa\Native\NativeConfig;
 
-
 class AuthenticatorTest extends TestCase
 {
     protected $config;
