@@ -1,4 +1,5 @@
 # M-PESA ONLINE CHECKOUT API Package
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/33ffc1124b5b4302b04dfefe16b714d9)](https://www.codacy.com/app/weezqyd/mpesa?utm_source=github.com&utm_medium=referral&utm_content=SmoDav/mpesa&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/SmoDav/mpesa.svg?branch=master)](https://travis-ci.org/SmoDav/mpesa)
 [![Total Downloads](https://poser.pugx.org/smodav/mpesa/d/total.svg)](https://packagist.org/packages/smodav/mpesa)
 [![Latest Stable Version](https://poser.pugx.org/smodav/mpesa/v/stable.svg)](https://packagist.org/packages/smodav/mpesa)
