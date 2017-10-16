@@ -24,11 +24,11 @@ class TestCase extends PHPUnit
      **/
     public function setUp()
     {
-        $client = Mockery::mock(ClientInterface::class);
+        $client  = Mockery::mock(ClientInterface::class);
         $promise = new Psr7\Response();
         $client->shouldReceive('request')->andReturn($promise);
-        $config = new NativeConfig();
-        $cache = new NativeCache($config);
+        $config       = new NativeConfig();
+        $cache        = new NativeCache($config);
         $this->engine = new Core($client, $config, $cache);
     }
 }

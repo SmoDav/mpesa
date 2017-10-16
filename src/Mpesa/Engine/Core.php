@@ -52,7 +52,7 @@ class Core
     public function __construct(ClientInterface $client, ConfigurationStore $configStore, CacheStore $cacheStore)
     {
         $this->config = $configStore;
-        $this->cache = $cacheStore;
+        $this->cache  = $cacheStore;
         $this->setClient($client);
 
         $this->initialize();

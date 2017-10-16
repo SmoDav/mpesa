@@ -69,7 +69,9 @@ class EndpointsRepository
         }
 
         $this->packageStatus = $status;
-        $this->baseEndpoint  = $status == 'production' ? MPESA_PRODUCTION : MPESA_SANDBOX;
+        $this->baseEndpoint  = $status == 'production' ?
+            $this->store->get('mpesa.production_endpoint', '') :
+            MPESA_SANDBOX;
     }
 
     /**

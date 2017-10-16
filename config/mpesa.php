@@ -26,6 +26,8 @@ return [
 
     'consumer_secret' => '',
 
+    'production_endpoint' => '',
+
     'initiator' => 'testapi0297',
 
     /*
@@ -85,7 +87,7 @@ return [
     | This is a registered Paybill Number that will be used as the Merchant ID
     | on every transaction. This is also the account to be debited.
     |
-    | DEMO PAYBILL NUMBER: 174379
+    |
     |
     */
 
