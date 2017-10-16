@@ -37,6 +37,7 @@ Run `composer require smodav/mpesa` to get the latest stable version of the pack
 ## Migration from previous versions
 
 v3 of this API uses the new M-Pesa API thus it might break some parts of the code in the previous versions.
+Checkout the 2.0 Branch for the older version.
 
 ### Laravel
 
