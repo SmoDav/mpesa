@@ -60,7 +60,12 @@ php artisan vendor:publish
 ```
 
 This will publish the M-Pesa configuration file into the `config` directory as
-`mpesa.php`. This file contains all the configurations required to use the package.
+`mpesa.php`. This file contains all the configurations required to use the package. 
+When going live edit the config and set the `production_endpoint` e.g.
+
+```php
+'production_endpoint' => 'https://production.safaricom.co.ke/'
+```
 
 ### Other Frameworks
 

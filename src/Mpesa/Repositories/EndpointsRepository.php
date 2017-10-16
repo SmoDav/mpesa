@@ -68,9 +68,15 @@ class EndpointsRepository
             throw new ConfigurationException('Invalid package status: ' . $status);
         }
 
+        $production = $this->store->get('mpesa.production_endpoint', '');
+
+        if (substr($production, strlen($production) - 1) !== '/') {
+            $production = $production . '/';
+        }
+
         $this->packageStatus = $status;
         $this->baseEndpoint  = $status == 'production' ?
-            $this->store->get('mpesa.production_endpoint', '') :
+            $production :
             MPESA_SANDBOX;
     }
 
