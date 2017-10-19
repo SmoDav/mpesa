@@ -41,7 +41,8 @@ Checkout the 2.0 Branch for the older version.
 
 ### Laravel
 
-When using Laravel 5, include the service provider and its alias within your `config/app.php`.
+When using Laravel 5.5+, the package will automatically register. For laravel 5.4 and below,
+include the service provider and its alias within your `config/app.php`.
 
 ```php
 'providers' => [
