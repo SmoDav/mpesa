@@ -27,12 +27,12 @@
     "extra": {
         "laravel": {
             "providers": [
-                "SmoDav\\Mpesa\\Laravel\\ServiceProvider::class"
+                "SmoDav\\Mpesa\\Laravel\\ServiceProvider"
             ],
             "aliases": {
-                "STK": "SmoDav\\Mpesa\\Laravel\\Facades\\STK::class",
-                "Registrar": "SmoDav\\Mpesa\\Laravel\\Facades\\Registrar::class",
-                "Identity": "SmoDav\\Mpesa\\Laravel\\Facades\\Identity::class"
+                "STK": "SmoDav\\Mpesa\\Laravel\\Facades\\STK",
+                "Registrar": "SmoDav\\Mpesa\\Laravel\\Facades\\Registrar",
+                "Identity": "SmoDav\\Mpesa\\Laravel\\Facades\\Identity"
             }
         }
     },
