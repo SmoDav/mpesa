@@ -35,7 +35,7 @@ class Identity
         $passkey         = $this->engine->config->get('mpesa.passkey');
         $defaultCallback = $this->engine->config->get('mpesa.id_validation_callback');
         $initiator       = $this->engine->config->get('mpesa.initiator');
-        $password        = \base64_encode($shortCode . ':' . $passkey . ':' . $time);
+        $password        = \base64_encode($shortCode . $passkey . $time);
 
         $body = [
             //Fill in the request parameters with valid values
