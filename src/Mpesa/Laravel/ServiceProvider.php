@@ -2,6 +2,8 @@
 
 namespace SmoDav\Mpesa\Laravel;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use Illuminate\Support\ServiceProvider as RootProvider;
 use SmoDav\Mpesa\C2B\Identity;
 use SmoDav\Mpesa\C2B\Registrar;
@@ -37,6 +39,9 @@ class ServiceProvider extends RootProvider
     {
         $this->app->bind(ConfigurationStore::class, LaravelConfig::class);
         $this->app->bind(CacheStore::class, LaravelCache::class);
+        $this->app->bind(ClientInterface::class, function () {
+            return new Client();
+        });
     }
 
     private function registerFacades()
