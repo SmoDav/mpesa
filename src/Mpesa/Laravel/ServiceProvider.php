@@ -10,6 +10,7 @@ use SmoDav\Mpesa\C2B\Registrar;
 use SmoDav\Mpesa\C2B\STK;
 use SmoDav\Mpesa\Contracts\CacheStore;
 use SmoDav\Mpesa\Contracts\ConfigurationStore;
+use SmoDav\Mpesa\Engine\Core;
 use SmoDav\Mpesa\Laravel\Stores\LaravelCache;
 use SmoDav\Mpesa\Laravel\Stores\LaravelConfig;
 
@@ -39,8 +40,11 @@ class ServiceProvider extends RootProvider
     {
         $this->app->bind(ConfigurationStore::class, LaravelConfig::class);
         $this->app->bind(CacheStore::class, LaravelCache::class);
-        $this->app->bind(ClientInterface::class, function () {
-            return new Client();
+        $this->app->bind(Core::class, function ($app) {
+            $config = $app->make(ConfigurationStore::class);
+            $cache = $app->make(CacheStore::class);
+
+            return new Core(new Client, $config, $cache);
         });
     }
 
