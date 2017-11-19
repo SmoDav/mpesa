@@ -69,7 +69,11 @@ class Authenticator
 
             return $body->access_token;
         } catch (RequestException $exception) {
-            throw $this->generateException($exception->getResponse()->getReasonPhrase());
+            $message = $exception->getResponse() ?
+               $exception->getResponse()->getReasonPhrase() :
+               $exception->getMessage();
+            
+            throw $this->generateException($message);
         }
     }
 
