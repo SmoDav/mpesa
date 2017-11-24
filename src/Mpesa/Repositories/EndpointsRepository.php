@@ -62,7 +62,7 @@ class EndpointsRepository
      */
     private function initializeState()
     {
-        $status = $this->store->get('mpesa.demo', 'sandbox');
+        $status = $this->store->get('mpesa.status', 'sandbox');
 
         if (!\in_array($status, ['sandbox', 'production'])) {
             throw new ConfigurationException('Invalid package status: ' . $status);
