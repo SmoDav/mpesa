@@ -1,6 +1,6 @@
 <?php
 
-namespace SmoDav\Mpesa;
+namespace SmoDav\Mpesa\Laravel\Stores;
 
 use Illuminate\Config\Repository;
 use SmoDav\Mpesa\Contracts\ConfigurationStore;
@@ -9,7 +9,7 @@ use SmoDav\Mpesa\Contracts\ConfigurationStore;
  * Class LaravelConfig
  *
  * @category PHP
- * @package  SmoDav\Mpesa
+ *
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class LaravelConfig implements ConfigurationStore
@@ -22,7 +22,7 @@ class LaravelConfig implements ConfigurationStore
     /**
      * LaravelConfiguration constructor.
      *
-     * @param MpesaRepository $repository
+     * @param Repository $repository
      */
     public function __construct(Repository $repository)
     {
@@ -33,7 +33,7 @@ class LaravelConfig implements ConfigurationStore
      * Get given config value from the configuration store.
      *
      * @param string $key
-     * @param null $default
+     * @param null   $default
      *
      * @return mixed
      */

@@ -8,11 +8,13 @@ use SmoDav\Mpesa\Contracts\ConfigurationStore;
  * Class NativeConfig
  *
  * @category PHP
- * @package  SmoDav\Mpesa\Native
+ *
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
 class NativeConfig implements ConfigurationStore
 {
+    //TODO: change implementation so user can enter the location.
+
     /**
      * Mpesa configuration file.
      *
@@ -25,7 +27,14 @@ class NativeConfig implements ConfigurationStore
      */
     public function __construct()
     {
-        $this->config = require(__DIR__ . '/../../../config/mpesa.php');
+        $defaultConfig = require __DIR__ . '/../../../config/mpesa.php';
+        $userConfig    = __DIR__ . '/../../../../../../config/mpesa.php';
+        $custom        = [];
+        if (\is_file($userConfig)) {
+            $custom = require $userConfig;
+        }
+
+        $this->config = \array_merge($defaultConfig, $custom);
     }
 
     /**
@@ -34,11 +43,11 @@ class NativeConfig implements ConfigurationStore
      * @param      $key
      * @param null $default
      *
-     * @return null
+     * @return mixed|null
      */
     public function get($key, $default = null)
     {
-        $itemKey = explode('.', $key)[1];
+        $itemKey = \explode('.', $key)[1];
 
         if (isset($this->config[$itemKey])) {
             return $this->config[$itemKey];

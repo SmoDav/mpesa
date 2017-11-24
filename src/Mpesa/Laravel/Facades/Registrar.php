@@ -1,18 +1,17 @@
 <?php
 
-namespace SmoDav\Mpesa;
+namespace SmoDav\Mpesa\Laravel\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-
 /**
- * Class Mpesa
+ * Class Registrar
  *
  * @category PHP
- * @package  SmoDav\Mpesa
+ *
  * @author   David Mjomba <smodavprivate@gmail.com>
  */
-class Mpesa extends Facade
+class Registrar extends Facade
 {
     /**
      * Get the registered name of the component.
@@ -21,6 +20,6 @@ class Mpesa extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'mpesa';
+        return 'mp_registrar';
     }
 }

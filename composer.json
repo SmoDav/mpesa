@@ -12,20 +12,40 @@
     ],
     "autoload": {
         "files": [
-            "src/Mpesa/Support/helpers.php"
+            "src/Mpesa/Support/helpers.php",
+            "src/Mpesa/Support/constants.php"
         ],
         "psr-4": {
             "SmoDav\\Mpesa\\": "src/Mpesa/"
         }
     },
+     "autoload-dev": {
+        "psr-4": {
+            "SmoDav\\Mpesa\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SmoDav\\Mpesa\\Laravel\\ServiceProvider"
+            ],
+            "aliases": {
+                "STK": "SmoDav\\Mpesa\\Laravel\\Facades\\STK",
+                "Registrar": "SmoDav\\Mpesa\\Laravel\\Facades\\Registrar",
+                "Identity": "SmoDav\\Mpesa\\Laravel\\Facades\\Identity"
+            }
+        }
+    },
     "require": {
-        "php": ">=5.4.0",
-        "illuminate/support": "~5.0",
+        "php": ">=5.6.0",
+        "guzzlehttp/guzzle": "^6.2",
+        "illuminate/support": "^5.0",
         "nesbot/carbon": "~1.21",
-        "guzzlehttp/guzzle": "^6.2"
+        "predis/predis": "^1.1"
     },
     "require-dev": {
-        "mockery/mockery": "dev-master"
+        "mockery/mockery": "dev-master",
+        "phpunit/phpunit": "~5.7|~6.2"
     },
     "minimum-stability": "stable"
 }
