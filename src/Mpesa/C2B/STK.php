@@ -83,11 +83,14 @@ class STK
     }
 
     /**
-     * Initiate an online checkout transaction.
+     * Prepare the STK Push request
      *
-     * @param string $merchantReferenceId
-     *
-     * @return json
+     * @param int    $amount
+     * @param int    $number
+     * @param string $reference
+     * @param string $description
+     * 
+     * @return mixed
      */
     public function push($amount = null, $number = null, $reference = null, $description = null)
     {
