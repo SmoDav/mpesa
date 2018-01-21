@@ -24,6 +24,14 @@ class Identity
         $this->endpoint = EndpointsRepository::build(MPESA_ID_CHECK);
     }
 
+    /**
+     * Prepare the number validation request
+     *
+     * @param int    $number
+     * @param string $callback
+     * 
+     * @return mixed
+     */
     public function validate($number, $callback = null)
     {
         if (! starts_with($number, '2547')) {
