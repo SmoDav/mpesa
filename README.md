@@ -51,8 +51,9 @@ include the service provider and its alias within your `config/app.php`.
 
 'aliases' => [
     'STK'       => SmoDav\Mpesa\Laravel\Facades\STK::class,
+    'Simulate'  => SmoDav\Mpesa\Laravel\Facades\Simulate::class,
     'Registrar' => SmoDav\Mpesa\Laravel\Facades\Registrar::class,
-    'Identity' => SmoDav\Mpesa\Laravel\Facades\Identity::class,
+    'Identity'  => SmoDav\Mpesa\Laravel\Facades\Identity::class,
 ],
 ```
 
@@ -94,6 +95,7 @@ $engine = new Core(new Client, $config, $cache);
 
 ```
 
+
 ### URL Registration
 #### submit(shortCode = null, confirmationURL = null, validationURL = null, onTimeout = 'Completed|Cancelled')
 
@@ -128,6 +130,46 @@ $response = \Registrar::register(600000)
 // one function
 $response = \Registrar::submit(600000, 'https://payments.smodavproductions.com/checkout.php', 'https://payments.smodavproductions.com/checkout.php');
 ```
+
+
+### Simulate Transaction
+#### push(amount = null, number = null, reference = null, command = null)
+
+Initiate an C2B simulation transaction request.
+
+##### Vanilla
+
+```php
+use SmoDav\Mpesa\C2B\Simulate;
+
+$simulate = new Simulate($engine);
+    
+// fluent implementation
+$response = $simulate->request(10)
+    ->from(254722000000)
+    ->usingReference('f4u239fweu')
+    ->setCommand('CustomerPayBillOnline')
+    ->push();
+        
+// one function
+$response = $simulate->push(10, 254722000000, 'f4u239fweu', 'CustomerPayBillOnline');
+```
+
+##### Laravel
+
+```php
+// fluent implementation
+$response = \Simulate::request(10)
+    ->from(254722000000)
+    ->usingReference('f4u239fweu')
+    ->setCommand('CustomerPayBillOnline')
+    ->push();
+        
+// one function
+$response = \Simulate::push(10, 254722000000, 'f4u239fweu', 'CustomerPayBillOnline');
+
+```
+
 
 ### STK PUSH
 #### push(amount = null, number = null, reference = null, description = null)

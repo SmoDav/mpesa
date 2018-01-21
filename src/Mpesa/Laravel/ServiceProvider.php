@@ -7,6 +7,7 @@ use GuzzleHttp\ClientInterface;
 use Illuminate\Support\ServiceProvider as RootProvider;
 use SmoDav\Mpesa\C2B\Identity;
 use SmoDav\Mpesa\C2B\Registrar;
+use SmoDav\Mpesa\C2B\Simulate;
 use SmoDav\Mpesa\C2B\STK;
 use SmoDav\Mpesa\Contracts\CacheStore;
 use SmoDav\Mpesa\Contracts\ConfigurationStore;
@@ -60,6 +61,10 @@ class ServiceProvider extends RootProvider
 
         $this->app->bind('mp_identity', function () {
             return $this->app->make(Identity::class);
+        });
+
+        $this->app->bind('mp_simulate', function () {
+            return $this->app->make(Simulate::class);
         });
 
         //        $this->app->bind('mpesa', function () {
