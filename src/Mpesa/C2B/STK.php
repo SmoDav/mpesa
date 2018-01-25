@@ -74,7 +74,6 @@ class STK
      */
     public function usingReference($reference, $description)
     {
-
         $this->reference   = $reference;
         $this->description = $description;
 
