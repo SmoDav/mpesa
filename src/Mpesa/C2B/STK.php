@@ -74,12 +74,6 @@ class STK
      */
     public function usingReference($reference, $description)
     {
-        \preg_match('/[^A-Za-z0-9]/', $reference, $matches);
-
-        if (\count($matches)) {
-            throw new \InvalidArgumentException('Reference should be alphanumeric.');
-        }
-
         $this->reference   = $reference;
         $this->description = $description;
 
