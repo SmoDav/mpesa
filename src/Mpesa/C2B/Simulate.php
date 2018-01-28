@@ -90,10 +90,6 @@ class Simulate
      */
     public function usingReference($reference)
     {
-        if (\count($matches)) {
-            throw new \InvalidArgumentException('Reference should be alphanumeric.');
-        }
-
         $this->reference = $reference;
 
         return $this;
