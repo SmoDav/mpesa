@@ -14,6 +14,24 @@ class Simulate
     protected $number;
     protected $amount;
     protected $reference;
+    
+    /**
+     * Customer PayBill Online Command
+     */
+    const CUSTOMER_PAYBILL_ONLINE = 'CustomerPayBillOnline';
+    
+    /**
+     * Customer BuyGoods Online Command
+     */
+    const CUSTOMER_BUYGOODS_ONLINE = 'CustomerBuyGoodsOnline';
+    
+    /**
+     * Valid set of commands allowed.
+     */
+    const VALID_COMMANDS = [
+        self::CUSTOMER_PAYBILL_ONLINE,
+        self::CUSTOMER_BUYGOODS_ONLINE
+    ];
 
     /**
      * Simulate constructor.
@@ -72,8 +90,6 @@ class Simulate
      */
     public function usingReference($reference)
     {
-        \preg_match('/[^A-Za-z0-9]/', $reference, $matches);
-
         if (\count($matches)) {
             throw new \InvalidArgumentException('Reference should be alphanumeric.');
         }
@@ -92,9 +108,7 @@ class Simulate
      */
     public function setCommand($command)
     {
-        $valid_commands = ['CustomerPayBillOnline', 'CustomerBuyGoodsOnline'];
-
-        if (! \in_array($command, $valid_commands)) {
+        if (! \in_array($command, self::VALID_COMMANDS)) {
             throw new \InvalidArgumentException('Invalid command sent');
         }
 
