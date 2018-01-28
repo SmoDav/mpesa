@@ -148,11 +148,11 @@ $simulate = new Simulate($engine);
 $response = $simulate->request(10)
     ->from(254722000000)
     ->usingReference('f4u239fweu')
-    ->setCommand('CustomerPayBillOnline')
+    ->setCommand(Simulate::CUSTOMER_PAYBILL_ONLINE)
     ->push();
         
 // one function
-$response = $simulate->push(10, 254722000000, 'f4u239fweu', 'CustomerPayBillOnline');
+$response = $simulate->push(10, 254722000000, 'f4u239fweu', Simulate::CUSTOMER_PAYBILL_ONLINE);
 ```
 
 ##### Laravel
