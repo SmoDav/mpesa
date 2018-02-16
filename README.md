@@ -166,6 +166,29 @@ $response = \STK::push(10, 254722000000, 'f4u239fweu', 'Test Payment');
 ```
 
 
+### STK PUSH Transaction Validation
+#### validate(merchantReferenceId)
+
+Validate a C2B STK Push transaction.
+
+##### Vanilla
+
+```php
+use SmoDav\Mpesa\C2B\STK;
+
+$stk = new STK($engine);
+    
+$response = $stk->validate('17-213124-12');
+```
+
+##### Laravel
+
+```php
+$response = \STK::validate('17-213124-12');
+
+```
+
+
 ### Identity
 #### validate(number)
 
