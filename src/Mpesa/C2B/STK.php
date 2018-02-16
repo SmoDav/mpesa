@@ -10,6 +10,7 @@ use SmoDav\Mpesa\Repositories\EndpointsRepository;
 class STK
 {
     protected $pushEndpoint;
+    protected $validateEndpoint;
     protected $engine;
     protected $number;
     protected $amount;
@@ -25,6 +26,7 @@ class STK
     {
         $this->engine       = $engine;
         $this->pushEndpoint = EndpointsRepository::build(MPESA_STK_PUSH);
+        $this->validateEndpoint = EndpointsRepository::build(MPESA_STK_PUSH_VALIDATE);
     }
 
     /**
@@ -80,6 +82,13 @@ class STK
         return $this;
     }
 
+    /**
+     * Initiate an online checkout transaction.
+     *
+     * @param string $merchantReferenceId
+     *
+     * @return json
+     */
     public function push($amount = null, $number = null, $reference = null, $description = null)
     {
         $time      = Carbon::now()->format('YmdHis');
@@ -112,15 +121,47 @@ class STK
     }
 
     /**
+     * Validate an initialized transaction.
+     *
+     * @param string $checkoutRequestID
+     *
+     * @return json
+     */
+    public function validate($checkoutRequestID)
+    {
+        $time      = Carbon::now()->format('YmdHis');
+        $shortCode = $this->engine->config->get('mpesa.short_code');
+        $passkey   = $this->engine->config->get('mpesa.passkey');
+        $password  = \base64_encode($shortCode . $passkey . $time);
+
+        $body = [
+            'BusinessShortCode' => $shortCode,
+            'Password'          => $password,
+            'Timestamp'         => $time,
+            'CheckoutRequestID'   => $checkoutRequestID,
+        ];
+
+        try {
+            $response = $this->makeRequest($body, $this->validateEndpoint);
+
+            return \json_decode($response->getBody());
+        } catch (RequestException $exception) {
+            return \json_decode($exception->getResponse()->getBody());
+        }
+    }
+
+    /**
      * Initiate the request.
      *
      * @param array $body
      *
      * @return mixed|\Psr\Http\Message\ResponseInterface
      */
-    private function makeRequest($body = [])
+    private function makeRequest($body = [], $endpoint = null)
     {
-        return $this->engine->client->request('POST', $this->pushEndpoint, [
+        $endpoint = $endpoint ?: $this->pushEndpoint;
+
+        return $this->engine->client->request('POST', $endpoint, [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->engine->auth->authenticate(),
                 'Content-Type'  => 'application/json',
