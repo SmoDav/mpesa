@@ -48,10 +48,5 @@
         "mockery/mockery": "dev-master",
         "phpunit/phpunit": "~5.7|~6.2"
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "3.0-dev"
-        }
-    },
     "minimum-stability": "stable"
 }
