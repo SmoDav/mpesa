@@ -89,7 +89,7 @@ class STK
      * @param int    $number
      * @param string $reference
      * @param string $description
-     * 
+     *
      * @return mixed
      */
     public function push($amount = null, $number = null, $reference = null, $description = null)
