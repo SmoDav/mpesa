@@ -29,7 +29,7 @@ class Identity
      *
      * @param int    $number
      * @param string $callback
-     * 
+     *
      * @return mixed
      */
     public function validate($number, $callback = null)

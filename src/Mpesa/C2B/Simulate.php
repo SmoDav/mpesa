@@ -120,9 +120,9 @@ class Simulate
      * @param int    $number
      * @param string $reference
      * @param string $command
-     * 
+     *
      * @throws ErrorException
-     * 
+     *
      * @return mixed
      */
     public function push($amount = null, $number = null, $reference = null, $command = null)
