@@ -127,7 +127,7 @@ class Simulate
      */
     public function push($amount = null, $number = null, $reference = null, $command = null)
     {
-        if ($this->store->get('mpesa.status') !== 'sandbox') {
+        if ($this->engine->config->get('mpesa.status', 'sandbox') !== 'sandbox') {
             throw new ErrorException('Cannot simulate a transaction in the live environment.');
         }
 
