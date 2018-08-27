@@ -2,10 +2,11 @@
 
 namespace SmoDav\Mpesa\C2B;
 
+use Exception;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
 use SmoDav\Mpesa\Engine\Core;
-use SmoDav\Mpesa\Repositories\EndpointsRepository;
+use SmoDav\Mpesa\Traits\MakesRequest;
 
 /**
  * Class Registrar.
@@ -13,13 +14,17 @@ use SmoDav\Mpesa\Repositories\EndpointsRepository;
  * @category PHP
  *
  * @author   David Mjomba <smodavprivate@gmail.com>
+ *
+ * @method Registrar onConfirmation(string $confirmationURL)
+ * @method Registrar onTimeout(string $onTimeout)
+ * @method Registrar onValidation(string $validationURL)
+ * @method Registrar register(string $shortCode)
+ * @method stdClass submit(string $shortCode = null, string $confirmationURL = null, string $validationURL = null, string $onTimeout = null, string $account = null)
+ * @method Registrar usingAccount(string $account)
  */
 class Registrar
 {
-    /**
-     * @var string
-     */
-    protected $endpoint;
+    use MakesRequest;
 
     /**
      * The short code to register callbacks for.
@@ -50,20 +55,11 @@ class Registrar
     protected $onTimeout = 'Completed';
 
     /**
-     * @var Core
-     */
-    private $engine;
-
-    /**
-     * Registrar constructor.
+     * The account to be used
      *
-     * @param Core $engine
+     * @var string
      */
-    public function __construct(Core $engine)
-    {
-        $this->engine   = $engine;
-        $this->endpoint = EndpointsRepository::build(MPESA_REGISTER);
-    }
+    protected $account = null;
 
     /**
      * Submit the short code to be registered.
@@ -126,6 +122,20 @@ class Registrar
     }
 
     /**
+     * Set the account to be used.
+     *
+     * @param string $account
+     *
+     * @return self
+     */
+    public function usingAccount($account)
+    {
+        $this->account = $account;
+
+        return $this;
+    }
+
+    /**
      * Initiate the registration process.
      *
      * @param null $shortCode
@@ -137,10 +147,12 @@ class Registrar
      *
      * @throws \Exception
      */
-    public function submit($shortCode = null, $confirmationURL = null, $validationURL = null, $onTimeout = null)
+    public function submit($shortCode = null, $confirmationURL = null, $validationURL = null, $onTimeout = null, $account = null)
     {
-        if ($onTimeout && $onTimeout != 'Completed' && $onTimeout = 'Cancelled') {
-            throw new InvalidArgumentException('Invalid timeout argument. Use Completed or Cancelled');
+        $account = $account ?: $this->account;
+
+        if ($onTimeout) {
+            $this->onTimeout($onTimeout);
         }
 
         $body = [
@@ -151,7 +163,11 @@ class Registrar
         ];
 
         try {
-            $response = $this->makeRequest($body);
+            $response = $this->makeRequest(
+                $body,
+                Core::instance()->getEndpoint(MPESA_REGISTER, $account),
+                $account
+            );
 
             return \json_decode($response->getBody());
         } catch (RequestException $exception) {
@@ -159,35 +175,7 @@ class Registrar
                $exception->getResponse()->getReasonPhrase() :
                $exception->getMessage();
 
-            throw $this->generateException($message);
+            throw new Exception($message);
         }
-    }
-
-    /**
-     * Initiate the registration request.
-     *
-     * @param array $body
-     *
-     * @return mixed|\Psr\Http\Message\ResponseInterface
-     */
-    private function makeRequest($body = [])
-    {
-        return $this->engine->client->request('POST', $this->endpoint, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->engine->auth->authenticate(),
-                'Content-Type'  => 'application/json',
-            ],
-            'json' => $body,
-        ]);
-    }
-
-    /**
-     * @param $getReasonPhrase
-     *
-     * @return \Exception
-     */
-    private function generateException($getReasonPhrase)
-    {
-        return new \Exception($getReasonPhrase);
     }
 }

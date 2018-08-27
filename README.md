@@ -22,9 +22,9 @@ When using vanilla PHP, modify your `composer.json` file to include:
 
 ```json
   "scripts": {
-        "post-update-cmd": [
-            "SmoDav\\Mpesa\\Support\\Installer::install"
-        ]
+    "post-update-cmd": [
+        "SmoDav\\Mpesa\\Support\\Installer::install"
+    ]
   },
 ```
 This script will copy the default configuration file to a config folder in the root directory of your project.
@@ -36,8 +36,7 @@ Run `composer require smodav/mpesa` to get the latest stable version of the pack
 
 ## Migration from previous versions
 
-v3 of this API uses the new M-Pesa API thus it might break some parts of the code in the previous versions.
-Checkout the 2.0 Branch for the older version.
+v4 of this package uses a new configuration setup. You will need to update your config file in order to upgrade v3 to v4. v2 is still incompatible since it uses the older API version.
 
 ### Laravel
 
@@ -62,42 +61,118 @@ Publish the package specific config using:
 php artisan vendor:publish
 ```
 
-This will publish the M-Pesa configuration file into the `config` directory as
-`mpesa.php`. This file contains all the configurations required to use the package. 
-When going live edit the config and set the `production_endpoint` e.g.
-
-```php
-'production_endpoint' => 'https://production.safaricom.co.ke/'
-```
-
 ### Other Frameworks
 
-To implement this package, a configuration repository is needed, thus any other
-framework will need to create its own implementation of the `ConfigurationStore` and `CacheStore`
-interface.
+To implement this package, a configuration repository is needed, thus any other framework will need to create its own implementation of the `ConfigurationStore` and `CacheStore` interfaces.
+
+### Configuration
+
+The package allows you to have multiple accounts. Each account will have its specific credentials and endpoints that are independent of the rest.
+You will be required to set the default account to be used for all transactions, which you can override on each request you make. The package comes
+with two default accounts that you can modify.
+
+```
+/*
+|--------------------------------------------------------------------------
+| Default Account
+|--------------------------------------------------------------------------
+|
+| This is the default account to be used when none is specified.
+*/
+
+'default' => 'staging',
+
+/*
+|--------------------------------------------------------------------------
+| File Cache Location
+|--------------------------------------------------------------------------
+|
+| When using the Native Cache driver, this will be the relative directory
+| where the cache information will be stored.
+*/
+
+'cache_location' => '../cache',
+
+/*
+|--------------------------------------------------------------------------
+| Accounts
+|--------------------------------------------------------------------------
+|
+| These are the accounts that can be used with the package. You can configure
+| as many as needed. Two have been setup for you.
+|
+| Sandbox: Determines whether to use the sandbox, Possible values: sandbox | production
+| Initiator: This is the username used to authenticate the transaction request
+| LNMO:
+|    shortcode: The till number
+|    passkey: The passkey for the till number
+|    callback: Endpoint that will be be queried on completion or failure of the transaction.
+|
+*/
+
+'accounts' => [
+    'staging' => [
+'sandbox' => true,
+'key' => 'your development consumer key',
+'secret' => 'your development consumer secret',
+'initiator' => 'your development username',
+'id_validation_callback' => 'http://example.com/callback?secret=some_secret_hash_key',
+'lnmo' => [
+    'shortcode' => 'your development till number',
+    'passkey' => 'your development passkey',
+    'callback' => 'http://example.com/callback?secret=some_secret_hash_key',
+]
+    ],
+
+    'paybill_1' => [
+'sandbox' => false,
+'key' => 'your production consumer key',
+'secret' => 'your production consumer secret',
+'initiator' => 'your production username',
+'id_validation_callback' => 'http://example.com/callback?secret=some_secret_hash_key',
+'lnmo' => [
+    'shortcode' => 'your production till number',
+    'passkey' => 'your production passkey',
+    'callback' => 'http://example.com/callback?secret=some_secret_hash_key',
+]
+    ],
+
+    'paybill_2' => [
+'sandbox' => false,
+'key' => 'your production consumer key',
+'secret' => 'your production consumer secret',
+'initiator' => 'your production username',
+'id_validation_callback' => 'http://example.com/callback?secret=some_secret_hash_key',
+'lnmo' => [
+    'shortcode' => 'your production till number',
+    'passkey' => 'your production passkey',
+    'callback' => 'http://example.com/callback?secret=some_secret_hash_key',
+]
+    ],
+],
+```
+
+You can add as many accounts as required and switch the connection using the method `usingAccount` on `STK`, `Register` and `Simulate` as shown below.
 
 ## Usage
 
 For Vanilla PHP you will need to initialize the core engine before any requests below.
+
 ```php
 use GuzzleHttp\Client;
 use SmoDav\Mpesa\Engine\Core;
 use SmoDav\Mpesa\Native\NativeCache;
 use SmoDav\Mpesa\Native\NativeConfig;
 
-
 require "vendor/autoload.php";
 
-
 $config = new NativeConfig();
-$cache = new NativeCache($config);
-$engine = new Core(new Client, $config, $cache);
+new Core(new Client, $config, new NativeCache($config));
 
 ```
 
-
 ### URL Registration
-#### submit(shortCode = null, confirmationURL = null, validationURL = null, onTimeout = 'Completed|Cancelled')
+#### submit(shortCode = null, confirmationURL = null, validationURL = null, onTimeout = 'Completed|Cancelled', $account = null)
 
 Register callback URLs
 
@@ -106,34 +181,68 @@ Register callback URLs
 ```php
 use SmoDav\Mpesa\C2B\Registrar;
 
-$registrar = new Registrar($engine);
-    
-// fluent implementation
-$response = $registrar->register(600000)
-        ->onConfirmation('https://payments.smodavproductions.com/checkout.php')
-        ->onValidation('https://payments.smodavproductions.com/checkout.php')
-        ->submit();
-        
-// one function
-$response = $registrar->submit(600000, 'https://payments.smodavproductions.com/checkout.php', 'https://payments.smodavproductions.com/checkout.php');
+$conf = 'http://example.com/mpesa/confirm?secret=some_secret_hash_key';
+$val = 'http://example.com/mpesa/validate?secret=some_secret_hash_key';
+
+
+$response = (new Registrar)->register(600000)
+    ->onConfirmation($conf)
+    ->onValidation($val)
+    ->submit();
+
+/****** OR ********/
+$response = (new Registrar)->submit(600000, $conf, $val);
+
+```
+
+When having multiple accounts, switch using the `usingAccount` method. We currently have `staging`, `paybill_1` and `paybill_2` with `staging` as the default:
+
+```php
+$response = (new Registrar)
+    ->register(600000)
+    ->usingAccount('paybill_1')
+    ->onConfirmation($conf)
+    ->onValidation($val)
+    ->submit();
+
+/****** OR ********/
+$response = (new Registrar)->submit(600000, $conf, $val, null, 'paybill_1');
 ```
 
 ##### Laravel
 
 ```php
-// fluent implementation
-$response = \Registrar::register(600000)
-        ->onConfirmation('https://payments.smodavproductions.com/checkout.php')
-        ->onValidation('https://payments.smodavproductions.com/checkout.php')
-        ->submit();
-        
-// one function
-$response = \Registrar::submit(600000, 'https://payments.smodavproductions.com/checkout.php', 'https://payments.smodavproductions.com/checkout.php');
+use SmoDav\Mpesa\Laravel\Facades\Registrar;
+
+$conf = 'http://example.com/mpesa/confirm?secret=some_secret_hash_key';
+$val = 'http://example.com/mpesa/validate?secret=some_secret_hash_key';
+
+$response = Registrar::register(600000)
+    ->onConfirmation($conf)
+    ->onValidation($val)
+    ->submit();
+
+/****** OR ********/
+$response = Registrar::submit(600000, $conf, $val);
 ```
 
+Using the `paybill_1` account:
+
+```php
+use SmoDav\Mpesa\Laravel\Facades\Registrar;
+
+$response = Registrar::register(600000)
+    ->usingAccount('paybill_1')
+    ->onConfirmation($conf)
+    ->onValidation($val)
+    ->submit();
+
+/****** OR ********/
+$response = Registrar::submit(600000, $conf, $val, null, 'paybill_1');
+```
 
 ### Simulate Transaction
-#### push(amount = null, number = null, reference = null, command = null)
+#### push(amount = null, number = null, reference = null, command = null, $account = null)
 
 Initiate an C2B simulation transaction request.
 
@@ -143,36 +252,66 @@ Initiate an C2B simulation transaction request.
 use SmoDav\Mpesa\C2B\Simulate;
 
 $simulate = new Simulate($engine);
-    
-// fluent implementation
+
 $response = $simulate->request(10)
     ->from(254722000000)
-    ->usingReference('f4u239fweu')
+    ->usingReference('some reference')
     ->setCommand(CUSTOMER_PAYBILL_ONLINE)
     ->push();
-        
-// one function
-$response = $simulate->push(10, 254722000000, 'f4u239fweu', CUSTOMER_PAYBILL_ONLINE);
+
+/****** OR ********/
+$response = $simulate->push(10, 254722000000, 'some reference', CUSTOMER_PAYBILL_ONLINE);
+```
+
+Using the `paybill_1` account:
+
+```php
+$response = $simulate->request(10)
+    ->from(254722000000)
+    ->usingReference('some reference')
+    ->usingAccount('paybill_1')
+    ->setCommand(CUSTOMER_PAYBILL_ONLINE)
+    ->push();
+
+/****** OR ********/
+$response = $simulate->push(10, 254722000000, 'some reference', CUSTOMER_PAYBILL_ONLINE, 'paybill_1');
 ```
 
 ##### Laravel
 
 ```php
-// fluent implementation
-$response = \Simulate::request(10)
+use SmoDav\Mpesa\Laravel\Facades\Simulate;
+
+$response = Simulate::request(10)
     ->from(254722000000)
-    ->usingReference('f4u239fweu')
+    ->usingReference('some reference')
     ->setCommand(CUSTOMER_PAYBILL_ONLINE)
     ->push();
-        
-// one function
-$response = \Simulate::push(10, 254722000000, 'f4u239fweu', CUSTOMER_PAYBILL_ONLINE);
+
+/****** OR ********/
+$response = Simulate::push(10, 254722000000, 'some reference', CUSTOMER_PAYBILL_ONLINE);
 
 ```
 
+Using the `paybill_1` account:
+
+```php
+use SmoDav\Mpesa\Laravel\Facades\Simulate;
+
+$response = Simulate::request(10)
+    ->from(254722000000)
+    ->usingReference('some reference')
+    ->usingAccount('paybill_1')
+    ->setCommand(CUSTOMER_PAYBILL_ONLINE)
+    ->push();
+
+/****** OR ********/
+$response = Simulate::push(10, 254722000000, 'some reference', CUSTOMER_PAYBILL_ONLINE, 'paybill_1');
+
+```
 
 ### STK PUSH
-#### push(amount = null, number = null, reference = null, description = null)
+#### push(amount = null, number = null, reference = null, description = null, $account = null)
 
 Initiate an C2B STK Push request.
 
@@ -182,34 +321,62 @@ Initiate an C2B STK Push request.
 use SmoDav\Mpesa\C2B\STK;
 
 $stk = new STK($engine);
-    
-// fluent implementation
+
 $response = $stk->request(10)
     ->from(254722000000)
-    ->usingReference('f4u239fweu', 'Test Payment')
+    ->usingReference('some reference', 'Test Payment')
     ->push();
-        
-// one function
-$response = $stk->push(10, 254722000000, 'f4u239fweu', 'Test Payment');
+
+/****** OR ********/
+$response = $stk->push(10, 254722000000, 'some reference', 'Test Payment');
+```
+
+Using the `paybill_2` account:
+
+```php
+
+$response = $stk->request(10)
+    ->from(254722000000)
+    ->usingAccount('paybill_2')
+    ->usingReference('some reference', 'Test Payment')
+    ->push();
+
+/****** OR ********/
+$response = $stk->push(10, 254722000000, 'some reference', 'Test Payment', 'paybill_2');
 ```
 
 ##### Laravel
 
 ```php
-// fluent implementation
-$response = \STK::request(10)
+use SmoDav\Mpesa\Laravel\Facades\STK;
+
+$response = STK::request(10)
     ->from(254722000000)
-    ->usingReference('f4u239fweu', 'Test Payment')
+    ->usingReference('some reference', 'Test Payment')
     ->push();
-        
-// one function
-$response = \STK::push(10, 254722000000, 'f4u239fweu', 'Test Payment');
+
+/****** OR ********/
+$response = STK::push(10, 254722000000, 'some reference', 'Test Payment');
 
 ```
 
+Using the `paybill_2` account:
+
+```php
+use SmoDav\Mpesa\Laravel\Facades\STK;
+
+$response = STK::request(10)
+    ->from(254722000000)
+    ->usingAccount('paybill_2')
+    ->usingReference('some reference', 'Test Payment')
+    ->push();
+
+$response = STK::push(10, 254722000000, 'some reference', 'Test Payment', 'paybill_2');
+
+```
 
 ### STK PUSH Transaction Validation
-#### validate(merchantReferenceId)
+#### validate(merchantReferenceId, $account = null)
 
 Validate a C2B STK Push transaction.
 
@@ -223,33 +390,30 @@ $stk = new STK($engine);
 $response = $stk->validate('ws_CO_16022018125');
 ```
 
-##### Laravel
+Using the `paybill_2` account:
 
 ```php
-$response = \STK::validate('ws_CO_16022018125');
-
-```
-
-
-### Identity
-#### validate(number)
-
-Validate the phone number and get details about it.
-
-##### Vanilla
-
-```php
-use SmoDav\Mpesa\C2B\Identity;
-
-$identity = new Identity($engine);
-$response = $identity->validate(254722000000);
+$response = $stk->validate('ws_CO_16022018125', 'paybill_2');
 ```
 
 ##### Laravel
 
 ```php
-$response = \Identity::validate(254722000000);
+use SmoDav\Mpesa\Laravel\Facades\STK;
+
+$response = STK::validate('ws_CO_16022018125');
 ```
+
+Using the `paybill_1` account:
+
+```php
+use SmoDav\Mpesa\Laravel\Facades\STK;
+
+$response = STK::validate('ws_CO_16022018125', 'paybill_2');
+```
+
+
+##### When going live, you should change the `default` value of the config file to the production account.
 
 ## License
 

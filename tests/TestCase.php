@@ -2,9 +2,9 @@
 
 namespace SmoDav\Mpesa\Tests;
 
-use Mockery;
-use GuzzleHttp\Psr7;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Psr7;
+use Mockery;
 use PHPUnit\Framework\TestCase as PHPUnit;
 use SmoDav\Mpesa\Engine\Core;
 use SmoDav\Mpesa\Native\NativeCache;
@@ -15,7 +15,7 @@ class TestCase extends PHPUnit
     /**
      * Engine Core.
      *
-     * @var Engine
+     * @var Core
      **/
     protected $engine;
 

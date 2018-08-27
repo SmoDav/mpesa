@@ -4,29 +4,76 @@ namespace SmoDav\Mpesa\C2B;
 
 use Carbon\Carbon;
 use GuzzleHttp\Exception\RequestException;
+use InvalidArgumentException;
 use SmoDav\Mpesa\Engine\Core;
-use SmoDav\Mpesa\Repositories\EndpointsRepository;
+use SmoDav\Mpesa\Repositories\ConfigurationRepository;
+use SmoDav\Mpesa\Traits\MakesRequest;
 
+/**
+ * Class STK.
+ *
+ * @category PHP
+ *
+ * @author   David Mjomba <smodavprivate@gmail.com>
+ *
+ * @method STK from(string $number)
+ * @method STK request(string $amount)
+ * @method stdClass push(string $amount = null, string $number = null, string $reference = null, string $description = null, string $account = null)
+ * @method STK usingAccount(string $account)
+ * @method STK usingReference(string $reference, string $description)
+ * @method stdClass validate(string $checkoutRequestID, string $account = null)
+ */
 class STK
 {
-    protected $pushEndpoint;
-    protected $validateEndpoint;
-    protected $engine;
+    use MakesRequest;
+
+    /**
+     * The mobile number
+     *
+     * @var string
+     */
     protected $number;
+
+    /**
+     * The amount to request
+     *
+     * @var int
+     */
     protected $amount;
+
+    /**
+     * The transaction reference
+     *
+     * @var string
+     */
     protected $reference;
+
+    /**
+     * The transaction description
+     *
+     * @var string
+     */
     protected $description;
 
     /**
-     * STK constructor.
+     * The MPesa account to be used.
      *
-     * @param Core $engine
+     * @var string
      */
-    public function __construct(Core $engine)
+    protected $account = null;
+
+    /**
+     * Set the account to be used.
+     *
+     * @param string $account
+     *
+     * @return self
+     */
+    public function usingAccount($account)
     {
-        $this->engine       = $engine;
-        $this->pushEndpoint = EndpointsRepository::build(MPESA_STK_PUSH);
-        $this->validateEndpoint = EndpointsRepository::build(MPESA_STK_PUSH_VALIDATE);
+        $this->account = $account;
+
+        return $this;
     }
 
     /**
@@ -34,12 +81,12 @@ class STK
      *
      * @param int $amount
      *
-     * @return $this
+     * @return self
      */
     public function request($amount)
     {
-        if (!\is_numeric($amount)) {
-            throw new \InvalidArgumentException('The amount must be numeric');
+        if (!is_numeric($amount)) {
+            throw new InvalidArgumentException('The amount must be numeric');
         }
 
         $this->amount = $amount;
@@ -53,12 +100,12 @@ class STK
      *
      * @param int $number
      *
-     * @return $this
+     * @return self
      */
     public function from($number)
     {
         if (! starts_with($number, '2547')) {
-            throw new \InvalidArgumentException('The subscriber number must start with 2547');
+            throw new InvalidArgumentException('The subscriber number must start with 2547');
         }
 
         $this->number = $number;
@@ -72,7 +119,7 @@ class STK
      * @param int    $reference
      * @param string $description
      *
-     * @return $this
+     * @return self
      */
     public function usingReference($reference, $description)
     {
@@ -89,20 +136,23 @@ class STK
      * @param int    $number
      * @param string $reference
      * @param string $description
+     * @param string $account
      *
      * @return mixed
      */
-    public function push($amount = null, $number = null, $reference = null, $description = null)
+    public function push($amount = null, $number = null, $reference = null, $description = null, $account = null)
     {
-        $time      = Carbon::now()->format('YmdHis');
-        $shortCode = $this->engine->config->get('mpesa.short_code');
-        $passkey   = $this->engine->config->get('mpesa.passkey');
-        $callback  = $this->engine->config->get('mpesa.stk_callback');
-        $password  = \base64_encode($shortCode . $passkey . $time);
+        $account = $account ?: $this->account;
+        $time = Carbon::now()->format('YmdHis');
+        $configs = (new ConfigurationRepository)->useAccount($account);
+
+        $shortCode = $configs->getAccountKey('lnmo.shortcode');
+        $passkey   = $configs->getAccountKey('lnmo.passkey');
+        $callback  = $configs->getAccountKey('lnmo.callback');
 
         $body = [
             'BusinessShortCode' => $shortCode,
-            'Password'          => $password,
+            'Password'          => $this->getPassword($shortCode, $passkey, $time),
             'Timestamp'         => $time,
             'TransactionType'   => 'CustomerPayBillOnline',
             'Amount'            => $amount ?: $this->amount,
@@ -115,11 +165,15 @@ class STK
         ];
 
         try {
-            $response = $this->makeRequest($body);
+            $response = $this->makeRequest(
+                $body,
+                Core::instance()->getEndpoint(MPESA_LNMO, $account),
+                $account
+            );
 
-            return \json_decode($response->getBody());
+            return json_decode($response->getBody());
         } catch (RequestException $exception) {
-            return \json_decode($exception->getResponse()->getBody());
+            return json_decode($exception->getResponse()->getBody());
         }
     }
 
@@ -130,46 +184,32 @@ class STK
      *
      * @return json
      */
-    public function validate($checkoutRequestID)
+    public function validate($checkoutRequestID, $account = null)
     {
-        $time      = Carbon::now()->format('YmdHis');
-        $shortCode = $this->engine->config->get('mpesa.short_code');
-        $passkey   = $this->engine->config->get('mpesa.passkey');
-        $password  = \base64_encode($shortCode . $passkey . $time);
+        $account = $account ?: $this->account;
+        $time = Carbon::now()->format('YmdHis');
+        $configs = (new ConfigurationRepository)->useAccount($account);
+
+        $shortCode = $configs->getAccountKey('lnmo.shortcode');
+        $passkey   = $configs->getAccountKey('lnmo.passkey');
 
         $body = [
             'BusinessShortCode' => $shortCode,
-            'Password'          => $password,
+            'Password'          => $this->getPassword($shortCode, $passkey, $time),
             'Timestamp'         => $time,
-            'CheckoutRequestID'   => $checkoutRequestID,
+            'CheckoutRequestID' => $checkoutRequestID,
         ];
 
         try {
-            $response = $this->makeRequest($body, $this->validateEndpoint);
+            $response = $this->makeRequest(
+                $body,
+                Core::instance()->getEndpoint(MPESA_LNMO_VALIDATE, $account),
+                $account
+            );
 
-            return \json_decode($response->getBody());
+            return json_decode($response->getBody());
         } catch (RequestException $exception) {
-            return \json_decode($exception->getResponse()->getBody());
+            return json_decode($exception->getResponse()->getBody());
         }
-    }
-
-    /**
-     * Initiate the request.
-     *
-     * @param array $body
-     *
-     * @return mixed|\Psr\Http\Message\ResponseInterface
-     */
-    private function makeRequest($body = [], $endpoint = null)
-    {
-        $endpoint = $endpoint ?: $this->pushEndpoint;
-
-        return $this->engine->client->request('POST', $endpoint, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->engine->auth->authenticate(),
-                'Content-Type'  => 'application/json',
-            ],
-            'json' => $body,
-        ]);
     }
 }

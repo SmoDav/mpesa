@@ -3,7 +3,6 @@
 namespace SmoDav\Mpesa\Laravel;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
 use Illuminate\Support\ServiceProvider as RootProvider;
 use SmoDav\Mpesa\C2B\Identity;
 use SmoDav\Mpesa\C2B\Registrar;
@@ -66,9 +65,5 @@ class ServiceProvider extends RootProvider
         $this->app->bind('mp_simulate', function () {
             return $this->app->make(Simulate::class);
         });
-
-        //        $this->app->bind('mpesa', function () {
-//            return $this->app->make(Cashier::class);
-//        });
     }
 }

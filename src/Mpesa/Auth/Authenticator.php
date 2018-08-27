@@ -4,9 +4,9 @@ namespace SmoDav\Mpesa\Auth;
 
 use GuzzleHttp\Exception\RequestException;
 use SmoDav\Mpesa\Engine\Core;
-use SmoDav\Mpesa\Exceptions\ErrorException;
 use SmoDav\Mpesa\Exceptions\ConfigurationException;
-use SmoDav\Mpesa\Repositories\EndpointsRepository;
+use SmoDav\Mpesa\Exceptions\ErrorException;
+use SmoDav\Mpesa\Repositories\ConfigurationRepository;
 
 /**
  * Class Authenticator.
@@ -20,91 +20,41 @@ class Authenticator
     /**
      * Cache key.
      */
-    const AC_TOKEN = 'MP_AC_T';
-
-    /**
-     * @var string
-     */
-    protected $endpoint;
-
-    /**
-     * @var Core
-     */
-    protected $engine;
-
-    /**
-     * @var Authenticator
-     */
-    protected static $instance;
-
-    /**
-     * Authenticator constructor.
-     *
-     * @param Core $core
-     */
-    public function __construct(Core $core)
-    {
-        $this->engine   = $core;
-        $this->endpoint = EndpointsRepository::build(MPESA_AUTH);
-        self::$instance = $this;
-    }
+    const AC_TOKEN = 'MP:';
 
     /**
      * Get the access token required to transact.
+     *
+     * @param string $account
      *
      * @return mixed
      *
      * @throws ConfigurationException
      */
-    public function authenticate()
+    public static function authenticate($account = null)
     {
-        if ($token = $this->engine->cache->get(self::AC_TOKEN)) {
+        $configs = (new ConfigurationRepository)->useAccount($account);
+        $key = $configs->getAccountKey('key');
+        $secret = $configs->getAccountKey('secret');
+        $cacheKey = self::AC_TOKEN . "{$key}{$secret}";
+
+        if ($token = Core::instance()->cache()->get($cacheKey)) {
             return $token;
         }
 
         try {
-            $response = $this->makeRequest();
-            $body     = \json_decode($response->getBody());
-            $this->saveCredentials($body);
+            $response = self::makeRequest($key, $secret, $account);
+            $body = json_decode($response->getBody());
+            self::saveCredentials($cacheKey, $body);
 
             return $body->access_token;
         } catch (RequestException $exception) {
             $message = $exception->getResponse() ?
                $exception->getResponse()->getReasonPhrase() :
                $exception->getMessage();
-            
-            throw $this->generateException($message);
+
+            throw self::generateException($message);
         }
-    }
-
-    /**
-     * Throw a contextual exception.
-     *
-     * @param $reason
-     *
-     * @return ErrorException|ConfigurationException
-     */
-    private function generateException($reason)
-    {
-        switch (\strtolower($reason)) {
-            case 'bad request: invalid credentials':
-                return new ConfigurationException('Invalid consumer key and secret combination');
-            default:
-                return new ErrorException($reason);
-        }
-    }
-
-    /**
-     * Generate the base64 encoded authorization key.
-     *
-     * @return string
-     */
-    private function generateCredentials()
-    {
-        $key    = $this->engine->config->get('mpesa.consumer_key');
-        $secret = $this->engine->config->get('mpesa.consumer_secret');
-
-        return \base64_encode($key . ':' . $secret);
     }
 
     /**
@@ -112,11 +62,12 @@ class Authenticator
      *
      * @return mixed|\Psr\Http\Message\ResponseInterface
      */
-    private function makeRequest()
+    private static function makeRequest($key, $secret, $account)
     {
-        $credentials = $this->generateCredentials();
+        $credentials = base64_encode($key . ':' . $secret);
+        $endpoint = Core::instance()->getEndpoint(MPESA_AUTH, $account);
 
-        return $this->engine->client->request('GET', $this->endpoint, [
+        return Core::instance()->client()->request('GET', $endpoint, [
             'headers' => [
                 'Authorization' => 'Basic ' . $credentials,
                 'Content-Type'  => 'application/json',
@@ -129,10 +80,27 @@ class Authenticator
      *
      * @param $credentials
      */
-    private function saveCredentials($credentials)
+    private static function saveCredentials($key, $credentials)
     {
         $ttl = ($credentials->expires_in / 60) - 2;
 
-        $this->engine->cache->put(self::AC_TOKEN, $credentials->access_token, $ttl);
+        Core::instance()->cache()->put($key, $credentials->access_token, $ttl);
+    }
+
+    /**
+     * Throw a contextual exception.
+     *
+     * @param $reason
+     *
+     * @return ErrorException|ConfigurationException
+     */
+    private static function generateException($reason)
+    {
+        switch (strtolower($reason)) {
+            case 'bad request: invalid credentials':
+                return new ConfigurationException('Invalid consumer key and secret combination');
+            default:
+                return new ErrorException($reason);
+        }
     }
 }

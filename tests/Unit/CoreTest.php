@@ -2,11 +2,11 @@
 
 namespace SmoDav\Mpesa\Tests\Unit;
 
-use SmoDav\Mpesa\Tests\TestCase;
 use GuzzleHttp\ClientInterface;
 use SmoDav\Mpesa\Auth\Authenticator;
 use SmoDav\Mpesa\Contracts\CacheStore;
 use SmoDav\Mpesa\Contracts\ConfigurationStore;
+use SmoDav\Mpesa\Tests\TestCase;
 
 class CoreTest extends TestCase
 {
@@ -17,7 +17,7 @@ class CoreTest extends TestCase
      **/
     public function testAuthSet()
     {
-        $this->assertInstanceOf(Authenticator::class, $this->engine->auth);
+        $this->assertInstanceOf(Authenticator::class, $this->engine->auth());
     }
 
     /**
@@ -27,7 +27,7 @@ class CoreTest extends TestCase
      **/
     public function testClientSet()
     {
-        $this->assertInstanceOf(ClientInterface::class, $this->engine->client);
+        $this->assertInstanceOf(ClientInterface::class, $this->engine->client());
     }
 
     /**
@@ -37,7 +37,7 @@ class CoreTest extends TestCase
      **/
     public function testConfigStoreSet()
     {
-        $this->assertInstanceOf(ConfigurationStore::class, $this->engine->config);
+        $this->assertInstanceOf(ConfigurationStore::class, $this->engine->config());
     }
 
     /**
@@ -47,6 +47,6 @@ class CoreTest extends TestCase
      **/
     public function testCacheSet()
     {
-        $this->assertInstanceOf(CacheStore::class, $this->engine->cache);
+        $this->assertInstanceOf(CacheStore::class, $this->engine->cache());
     }
 }
