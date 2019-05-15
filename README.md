@@ -112,47 +112,53 @@ with two default accounts that you can modify.
 
 'accounts' => [
     'staging' => [
-'sandbox' => true,
-'key' => 'your development consumer key',
-'secret' => 'your development consumer secret',
-'initiator' => 'your development username',
-'id_validation_callback' => 'http://example.com/callback?secret=some_secret_hash_key',
-'lnmo' => [
-    'shortcode' => 'your development till number',
-    'passkey' => 'your development passkey',
-    'callback' => 'http://example.com/callback?secret=some_secret_hash_key',
-]
+        'sandbox' => true,
+        'key' => 'your development consumer key',
+        'secret' => 'your development consumer secret',
+        'initiator' => 'your development username',
+        'id_validation_callback' => 'http://example.com/callback?secret=some_secret_hash_key',
+        'lnmo' => [
+            'paybill' => 'your development paybill number',
+            'shortcode' => 'your development business code',
+            'passkey' => 'your development passkey',
+            'callback' => 'http://example.com/callback?secret=some_secret_hash_key',
+        ]
     ],
 
     'paybill_1' => [
-'sandbox' => false,
-'key' => 'your production consumer key',
-'secret' => 'your production consumer secret',
-'initiator' => 'your production username',
-'id_validation_callback' => 'http://example.com/callback?secret=some_secret_hash_key',
-'lnmo' => [
-    'shortcode' => 'your production till number',
-    'passkey' => 'your production passkey',
-    'callback' => 'http://example.com/callback?secret=some_secret_hash_key',
-]
+        'sandbox' => false,
+        'key' => 'your production consumer key',
+        'secret' => 'your production consumer secret',
+        'initiator' => 'your production username',
+        'id_validation_callback' => 'http://example.com/callback?secret=some_secret_hash_key',
+        'lnmo' => [
+            'paybill' => 'your production paybill number',
+            'shortcode' => 'your production business code',
+            'passkey' => 'your production passkey',
+            'callback' => 'http://example.com/callback?secret=some_secret_hash_key',
+        ]
     ],
 
     'paybill_2' => [
-'sandbox' => false,
-'key' => 'your production consumer key',
-'secret' => 'your production consumer secret',
-'initiator' => 'your production username',
-'id_validation_callback' => 'http://example.com/callback?secret=some_secret_hash_key',
-'lnmo' => [
-    'shortcode' => 'your production till number',
-    'passkey' => 'your production passkey',
-    'callback' => 'http://example.com/callback?secret=some_secret_hash_key',
-]
+        'sandbox' => false,
+        'key' => 'your production consumer key',
+        'secret' => 'your production consumer secret',
+        'initiator' => 'your production username',
+        'id_validation_callback' => 'http://example.com/callback?secret=some_secret_hash_key',
+        'lnmo' => [
+            'paybill' => 'your production paybill number',
+            'shortcode' => 'your production business code',
+            'passkey' => 'your production passkey',
+            'callback' => 'http://example.com/callback?secret=some_secret_hash_key',
+        ]
     ],
 ],
 ```
 
 You can add as many accounts as required and switch the connection using the method `usingAccount` on `STK`, `Register` and `Simulate` as shown below.
+
+Also, note the difference between the `business shortcode` and your `paybill number` in the configuration as getting them wrong will cost you a lot of time debugging.
+
 
 ## Usage
 
@@ -172,7 +178,7 @@ new Core(new Client, $config, new NativeCache($config));
 ```
 
 ### URL Registration
-#### submit(shortCode = null, confirmationURL = null, validationURL = null, onTimeout = 'Completed|Cancelled', $account = null)
+#### submit(shortCode = null, confirmationURL = null, validationURL = null, onTimeout = 'Completed|Cancelled', account = null)
 
 Register callback URLs
 
@@ -242,9 +248,12 @@ $response = Registrar::submit(600000, $conf, $val, null, 'paybill_1');
 ```
 
 ### Simulate Transaction
-#### push(amount = null, number = null, reference = null, command = null, $account = null)
+#### push(amount = null, number = null, reference = null, account = null, command = null)
 
-Initiate an C2B simulation transaction request.
+Initiate a C2B simulation transaction request.
+
+Note that when initiating a C2B simulation, setting the command type is optional and by default `CustomerPaybillOnline`
+will be used.
 
 ##### Vanilla
 
@@ -255,12 +264,11 @@ $simulate = new Simulate($engine);
 
 $response = $simulate->request(10)
     ->from(254722000000)
-    ->usingReference('some reference')
-    ->setCommand(CUSTOMER_PAYBILL_ONLINE)
+    ->usingReference('Some Reference')
     ->push();
 
 /****** OR ********/
-$response = $simulate->push(10, 254722000000, 'some reference', CUSTOMER_PAYBILL_ONLINE);
+$response = $simulate->push(10, 254722000000, 'Some Reference');
 ```
 
 Using the `paybill_1` account:
@@ -268,14 +276,27 @@ Using the `paybill_1` account:
 ```php
 $response = $simulate->request(10)
     ->from(254722000000)
-    ->usingReference('some reference')
+    ->usingReference('Some Reference')
     ->usingAccount('paybill_1')
-    ->setCommand(CUSTOMER_PAYBILL_ONLINE)
     ->push();
 
 /****** OR ********/
-$response = $simulate->push(10, 254722000000, 'some reference', CUSTOMER_PAYBILL_ONLINE, 'paybill_1');
+$response = $simulate->push(10, 254722000000, 'Some Reference', 'paybill_1');
 ```
+
+Using the `CustomerBuyGoodsOnline` command:
+
+```php
+$response = $simulate->request(10)
+    ->from(254722000000)
+    ->usingReference('Some Reference')
+    ->setCommand(CUSTOMER_BUYGOODS_ONLINE)
+    ->push();
+
+/****** OR ********/
+$response = $simulate->push(10, 254722000000, 'Some Reference', null, CUSTOMER_BUYGOODS_ONLINE);
+```
+
 
 ##### Laravel
 
@@ -284,13 +305,11 @@ use SmoDav\Mpesa\Laravel\Facades\Simulate;
 
 $response = Simulate::request(10)
     ->from(254722000000)
-    ->usingReference('some reference')
-    ->setCommand(CUSTOMER_PAYBILL_ONLINE)
+    ->usingReference('Some Reference')
     ->push();
 
 /****** OR ********/
-$response = Simulate::push(10, 254722000000, 'some reference', CUSTOMER_PAYBILL_ONLINE);
-
+$response = Simulate::push(10, 254722000000, 'Some Reference');
 ```
 
 Using the `paybill_1` account:
@@ -300,20 +319,36 @@ use SmoDav\Mpesa\Laravel\Facades\Simulate;
 
 $response = Simulate::request(10)
     ->from(254722000000)
-    ->usingReference('some reference')
+    ->usingReference('Some Reference')
     ->usingAccount('paybill_1')
-    ->setCommand(CUSTOMER_PAYBILL_ONLINE)
     ->push();
 
 /****** OR ********/
-$response = Simulate::push(10, 254722000000, 'some reference', CUSTOMER_PAYBILL_ONLINE, 'paybill_1');
+$response = Simulate::push(10, 254722000000, 'Some Reference', 'paybill_1');
+```
 
+Using the `CustomerBuyGoodsOnline` command:
+
+```php
+use SmoDav\Mpesa\Laravel\Facades\Simulate;
+
+$response = Simulate::request(10)
+    ->from(254722000000)
+    ->usingReference('Some Reference')
+    ->setCommand(CUSTOMER_BUYGOODS_ONLINE) 
+    ->push();
+
+/****** OR ********/
+$response = Simulate::push(10, 254722000000, 'Some Reference', null, CUSTOMER_BUYGOODS_ONLINE);
 ```
 
 ### STK PUSH
-#### push(amount = null, number = null, reference = null, description = null, $account = null)
+#### push(amount = null, number = null, reference = null, description = null, account = null, command = null)
 
-Initiate an C2B STK Push request.
+Initiate a C2B STK Push request.
+
+Note that when initiating an STK Push, setting the command type is optional and by default `CustomerPaybillOnline`
+will be used.
 
 ##### Vanilla
 
@@ -324,11 +359,11 @@ $stk = new STK($engine);
 
 $response = $stk->request(10)
     ->from(254722000000)
-    ->usingReference('some reference', 'Test Payment')
+    ->usingReference('Some Reference', 'Test Payment')
     ->push();
 
 /****** OR ********/
-$response = $stk->push(10, 254722000000, 'some reference', 'Test Payment');
+$response = $stk->push(10, 254722000000, 'Some Reference', 'Test Payment');
 ```
 
 Using the `paybill_2` account:
@@ -338,12 +373,27 @@ Using the `paybill_2` account:
 $response = $stk->request(10)
     ->from(254722000000)
     ->usingAccount('paybill_2')
-    ->usingReference('some reference', 'Test Payment')
+    ->usingReference('Some Reference', 'Test Payment')
     ->push();
 
 /****** OR ********/
-$response = $stk->push(10, 254722000000, 'some reference', 'Test Payment', 'paybill_2');
+$response = $stk->push(10, 254722000000, 'Some Reference', 'Test Payment', 'paybill_2');
 ```
+
+Using `CustomerBuyGoodsOnline` command:
+
+```php
+
+$response = $stk->request(10)
+    ->from(254722000000)
+    ->usingReference('Some Reference', 'Test Payment')
+    ->setCommand(CUSTOMER_BUYGOODS_ONLINE)
+    ->push();
+
+/****** OR ********/
+$response = $stk->push(10, 254722000000, 'Some Reference', 'Test Payment', null, CUSTOMER_BUYGOODS_ONLINE);
+```
+
 
 ##### Laravel
 
@@ -352,12 +402,11 @@ use SmoDav\Mpesa\Laravel\Facades\STK;
 
 $response = STK::request(10)
     ->from(254722000000)
-    ->usingReference('some reference', 'Test Payment')
+    ->usingReference('Some Reference', 'Test Payment')
     ->push();
 
 /****** OR ********/
-$response = STK::push(10, 254722000000, 'some reference', 'Test Payment');
-
+$response = STK::push(10, 254722000000, 'Some Reference', 'Test Payment');
 ```
 
 Using the `paybill_2` account:
@@ -368,15 +417,28 @@ use SmoDav\Mpesa\Laravel\Facades\STK;
 $response = STK::request(10)
     ->from(254722000000)
     ->usingAccount('paybill_2')
-    ->usingReference('some reference', 'Test Payment')
+    ->usingReference('Some Reference', 'Test Payment')
     ->push();
 
-$response = STK::push(10, 254722000000, 'some reference', 'Test Payment', 'paybill_2');
+$response = STK::push(10, 254722000000, 'Some Reference', 'Test Payment', 'paybill_2');
+```
 
+Using the `CustomerGoodsOnline` command:
+
+```php
+use SmoDav\Mpesa\Laravel\Facades\STK;
+
+$response = STK::request(10)
+    ->from(254722000000)
+    ->usingReference('Some Reference', 'Test Payment')
+    ->setCommand(CUSTOMER_BUYGOODS_ONLINE) 
+    ->push();
+
+$response = STK::push(10, 254722000000, 'Some Reference', 'Test Payment', null, CUSTOMER_BUYGOODS_ONLINE);
 ```
 
 ### STK PUSH Transaction Validation
-#### validate(merchantReferenceId, $account = null)
+#### validate(merchantReferenceId, account = null)
 
 Validate a C2B STK Push transaction.
 
@@ -412,10 +474,8 @@ use SmoDav\Mpesa\Laravel\Facades\STK;
 $response = STK::validate('ws_CO_16022018125', 'paybill_2');
 ```
 
-
 ##### When going live, you should change the `default` value of the config file to the production account.
 
 ## License
 
 The M-Pesa Package is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
-

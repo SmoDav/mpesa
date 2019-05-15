@@ -57,12 +57,11 @@ class Simulate
     protected $account = null;
 
     /**
-     * Valid set of commands allowed.
+     * The transaction command to be used.
+     *
+     * @var string
      */
-    const VALID_COMMANDS = [
-        CUSTOMER_BUYGOODS_ONLINE,
-        CUSTOMER_PAYBILL_ONLINE,
-    ];
+    protected $command = CUSTOMER_PAYBILL_ONLINE;
 
     /**
      * Set the request amount to be deducted.
@@ -138,7 +137,7 @@ class Simulate
      */
     public function setCommand($command)
     {
-        if (! in_array($command, self::VALID_COMMANDS)) {
+        if (! in_array($command, VALID_COMMANDS)) {
             throw new InvalidArgumentException('Invalid command sent');
         }
 
@@ -159,7 +158,7 @@ class Simulate
      *
      * @return mixed
      */
-    public function push($amount = null, $number = null, $reference = null, $command = null, $account = null)
+    public function push($amount = null, $number = null, $reference = null, $account = null, $command = null)
     {
         $account = $account ?: $this->account;
         $configs = (new ConfigurationRepository)->useAccount($account);
