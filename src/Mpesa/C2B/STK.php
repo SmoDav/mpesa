@@ -19,6 +19,7 @@ use SmoDav\Mpesa\Traits\MakesRequest;
  * @method STK from(string $number)
  * @method STK request(string $amount)
  * @method stdClass push(string $amount = null, string $number = null, string $reference = null, string $description = null, string $account = null)
+ * @method STK setCommand(string $command)
  * @method STK usingAccount(string $account)
  * @method STK usingReference(string $reference, string $description)
  * @method stdClass validate(string $checkoutRequestID, string $account = null)
@@ -61,6 +62,13 @@ class STK
      * @var string
      */
     protected $account = null;
+
+    /**
+     * The transaction command to be used.
+     *
+     * @var string
+     */
+    protected $command = CUSTOMER_PAYBILL_ONLINE;
 
     /**
      * Set the account to be used.
@@ -130,6 +138,24 @@ class STK
     }
 
     /**
+     * Set the unique command for this transaction type.
+     *
+     * @param string $command
+     *
+     * @return self
+     */
+    public function setCommand($command)
+    {
+        if (! in_array($command, VALID_COMMANDS)) {
+            throw new InvalidArgumentException('Invalid command sent');
+        }
+
+        $this->command = $command;
+
+        return $this;
+    }
+
+    /**
      * Prepare the STK Push request
      *
      * @param int    $amount
@@ -140,24 +166,28 @@ class STK
      *
      * @return mixed
      */
-    public function push($amount = null, $number = null, $reference = null, $description = null, $account = null)
+    public function push($amount = null, $number = null, $reference = null, $description = null, $account = null, $command = null)
     {
         $account = $account ?: $this->account;
         $time = Carbon::now()->format('YmdHis');
         $configs = (new ConfigurationRepository)->useAccount($account);
 
+        $paybill   = $configs->getAccountKey('lnmo.paybill');
         $shortCode = $configs->getAccountKey('lnmo.shortcode');
         $passkey   = $configs->getAccountKey('lnmo.passkey');
         $callback  = $configs->getAccountKey('lnmo.callback');
+
+        $command = $command ?: $this->command;
+        $partyB  = $command == CUSTOMER_PAYBILL_ONLINE ? $shortCode : $paybill;
 
         $body = [
             'BusinessShortCode' => $shortCode,
             'Password'          => $this->getPassword($shortCode, $passkey, $time),
             'Timestamp'         => $time,
-            'TransactionType'   => 'CustomerPayBillOnline',
+            'TransactionType'   => $command,
             'Amount'            => $amount ?: $this->amount,
             'PartyA'            => $number ?: $this->number,
-            'PartyB'            => $shortCode,
+            'PartyB'            => $partyB,
             'PhoneNumber'       => $number ?: $this->number,
             'CallBackURL'       => $callback,
             'AccountReference'  => $reference ?: $this->reference,

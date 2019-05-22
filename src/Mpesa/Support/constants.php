@@ -13,3 +13,8 @@ const MPESA_PRODUCTION = 'https://api.safaricom.co.ke/';
 
 const CUSTOMER_PAYBILL_ONLINE = 'CustomerPayBillOnline';
 const CUSTOMER_BUYGOODS_ONLINE = 'CustomerBuyGoodsOnline';
+
+const VALID_COMMANDS = [
+    CUSTOMER_BUYGOODS_ONLINE,
+    CUSTOMER_PAYBILL_ONLINE,
+];

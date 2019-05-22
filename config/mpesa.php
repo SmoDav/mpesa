@@ -33,8 +33,9 @@ return [
     | Sandbox: Determines whether to use the sandbox, Possible values: sandbox | production
     | Initiator: This is the username used to authenticate the transaction request
     | LNMO:
-    |    shortcode: The till number
-    |    passkey: The passkey for the till number
+    |    paybill: Your paybill number
+    |    shortcode: Your business shortcode
+    |    passkey: The passkey for the paybill number
     |    callback: Endpoint that will be be queried on completion or failure of the transaction.
     |
     */
@@ -47,6 +48,7 @@ return [
             'initiator' => 'apitest363',
             'id_validation_callback' => 'http://example.com/callback?secret=some_secret_hash_key',
             'lnmo' => [
+                'paybill' => 174379,
                 'shortcode' => 174379,
                 'passkey' => 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919',
                 'callback' => 'http://example.com/callback?secret=some_secret_hash_key',
@@ -60,6 +62,7 @@ return [
             'initiator' => 'apitest363',
             'id_validation_callback' => 'http://example.com/callback?secret=some_secret_hash_key',
             'lnmo' => [
+                'paybill' => 174379,
                 'shortcode' => 174379,
                 'passkey' => 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919',
                 'callback' => 'http://example.com/callback?secret=some_secret_hash_key',
