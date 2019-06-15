@@ -21,7 +21,7 @@
     "require": {
         "php": ">=5.4.0",
         "illuminate/support": "~5.0",
-        "nesbot/carbon": "^1.26.3",
+        "nesbot/carbon": "~1.21",
         "guzzlehttp/guzzle": "^6.2"
     },
     "require-dev": {
