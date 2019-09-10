@@ -3,6 +3,7 @@
 namespace SmoDav\Mpesa\C2B;
 
 use GuzzleHttp\Exception\RequestException;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use SmoDav\Mpesa\Engine\Core;
 use SmoDav\Mpesa\Exceptions\ErrorException;
@@ -91,7 +92,7 @@ class Simulate
      */
     public function from($number)
     {
-        if (! starts_with($number, '2547')) {
+        if (! Str::startsWith($number, '2547')) {
             throw new \InvalidArgumentException('The subscriber number must start with 2547');
         }
 
