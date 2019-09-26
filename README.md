@@ -38,7 +38,7 @@ Run `composer require smodav/mpesa` to get the latest stable version of the pack
 
 ## Migration from previous versions
 
-v5 of the package changes the implementation and introduces some breaking changes. Please have a look at the [CHANGELOG](https://github.com/SmoDav/mpesa/CHANGELOG.md).
+v5 of the package changes the implementation and introduces some breaking changes. Please have a look at the [CHANGELOG](https://github.com/SmoDav/mpesa/blob/master/CHANGELOG.md).
 
 v4 of this package uses a new configuration setup. You will need to update your config file in order to upgrade v3 to v4. v2 is still incompatible since it uses the older API version.
 
