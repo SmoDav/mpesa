@@ -3,31 +3,15 @@
 namespace SmoDav\Mpesa\C2B;
 
 use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
-use SmoDav\Mpesa\Engine\Core;
 use SmoDav\Mpesa\Exceptions\ErrorException;
-use SmoDav\Mpesa\Repositories\ConfigurationRepository;
-use SmoDav\Mpesa\Traits\MakesRequest;
+use SmoDav\Mpesa\Repositories\Endpoint;
+use SmoDav\Mpesa\Traits\UsesCore;
+use SmoDav\Mpesa\Traits\Validates;
 
-/**
- * Class Simulate.
- *
- * @category PHP
- *
- * @author   David Mjomba <smodavprivate@gmail.com>
- *
- * @method Simulate from(string $number)
- * @method Simulate request(string $amount)
- * @method stdClass push(string $amount = null, string $number = null, string $reference = null, string $command = null, string $account = null)
- * @method Simulate setCommand(string $command)
- * @method Simulate usingAccount(string $account)
- * @method Simulate usingReference(string $reference)
- * @method stdClass validate(string $checkoutRequestID, string $account = null)
- */
 class Simulate
 {
-    use MakesRequest;
+    use UsesCore, Validates;
 
     /**
      * The simulation number
@@ -62,20 +46,20 @@ class Simulate
      *
      * @var string
      */
-    protected $command = CUSTOMER_PAYBILL_ONLINE;
+    protected $command = STK::CUSTOMER_PAYBILL_ONLINE;
 
     /**
      * Set the request amount to be deducted.
      *
      * @param int $amount
      *
-     * @return $this
+     * @return self
+     *
+     * @throws InvalidArgumentException
      */
     public function request($amount)
     {
-        if (!\is_numeric($amount)) {
-            throw new \InvalidArgumentException('The amount must be numeric');
-        }
+        $this->validateAmount($amount);
 
         $this->amount = $amount;
 
@@ -88,13 +72,13 @@ class Simulate
      *
      * @param int $number
      *
-     * @return $this
+     * @return self
+     *
+     * @throws InvalidArgumentException
      */
     public function from($number)
     {
-        if (! Str::startsWith($number, '2547')) {
-            throw new \InvalidArgumentException('The subscriber number must start with 2547');
-        }
+        $this->validateNumber($number);
 
         $this->number = $number;
 
@@ -106,7 +90,7 @@ class Simulate
      *
      * @param int $reference
      *
-     * @return $this
+     * @return self
      */
     public function usingReference($reference)
     {
@@ -135,10 +119,12 @@ class Simulate
      * @param string $command
      *
      * @return self
+     *
+     * @throws InvalidArgumentException
      */
     public function setCommand($command)
     {
-        if (! in_array($command, VALID_COMMANDS)) {
+        if (! in_array($command, STK::VALID_COMMANDS)) {
             throw new InvalidArgumentException('Invalid command sent');
         }
 
@@ -148,12 +134,37 @@ class Simulate
     }
 
     /**
+     * Set the properties that require validation.
+     *
+     * @param string|null $amount
+     * @param string|null $number
+     * @param string|null $command
+     *
+     * @return void
+     */
+    private function set($amount, $number, $command)
+    {
+        $map = [
+            'amount' => 'request',
+            'number' => 'from',
+            'command' => 'setCommand',
+        ];
+
+        foreach ($map as $var => $method) {
+            if ($$var) {
+                call_user_func([$this, $method], $$var);
+            }
+        }
+    }
+
+    /**
      * Prepare the transaction simulation request
      *
-     * @param int    $amount
-     * @param int    $number
-     * @param string $reference
-     * @param string $command
+     * @param int|null    $amount
+     * @param int|null    $number
+     * @param string|null $reference
+     * @param string|null $account
+     * @param string|null $command
      *
      * @throws ErrorException
      *
@@ -161,28 +172,27 @@ class Simulate
      */
     public function push($amount = null, $number = null, $reference = null, $account = null, $command = null)
     {
-        $account = $account ?: $this->account;
-        $configs = (new ConfigurationRepository)->useAccount($account);
+        $this->set($amount, $number, $command);
+        $this->core->useAccount($account ?: $this->account);
 
-        if (!$configs->getAccountKey('sandbox')) {
+        if (!$this->core->configRepository()->getAccountKey('sandbox')) {
             throw new ErrorException('Cannot simulate a transaction in the live environment.');
         }
 
-        $shortCode = $configs->getAccountKey('lnmo.shortcode');
+        $shortCode = $this->core->configRepository()->getAccountKey('lnmo.shortcode');
 
         $body = [
-            'CommandID'     => $command ?: $this->command,
-            'Amount'        => $amount ?: $this->amount,
-            'Msisdn'        => $number ?: $this->number,
+            'CommandID'     => $this->command,
+            'Amount'        => $this->amount,
+            'Msisdn'        => $this->number,
             'ShortCode'     => $shortCode,
             'BillRefNumber' => $reference ?: $this->reference,
         ];
 
         try {
-            $response = $this->makeRequest(
+            $response = $this->clientRequest(
                 $body,
-                Core::instance()->getEndpoint(MPESA_SIMULATE, $account),
-                $account
+                $this->core->configRepository()->url(Endpoint::MPESA_SIMULATE),
             );
 
             return json_decode($response->getBody());

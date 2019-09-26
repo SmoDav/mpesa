@@ -5,13 +5,6 @@ namespace SmoDav\Mpesa\Laravel\Stores;
 use Illuminate\Config\Repository;
 use SmoDav\Mpesa\Contracts\ConfigurationStore;
 
-/**
- * Class LaravelConfig
- *
- * @category PHP
- *
- * @author   David Mjomba <smodavprivate@gmail.com>
- */
 class LaravelConfig implements ConfigurationStore
 {
     /**

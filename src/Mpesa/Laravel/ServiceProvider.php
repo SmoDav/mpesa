@@ -36,11 +36,16 @@ class ServiceProvider extends RootProvider
         $this->registerFacades();
     }
 
+    /**
+     * Bind the MPesa Instances.
+     *
+     * @return void
+     */
     private function bindInstances()
     {
         $this->app->bind(ConfigurationStore::class, LaravelConfig::class);
         $this->app->bind(CacheStore::class, LaravelCache::class);
-        $this->app->bind(Core::class, function ($app) {
+        $this->app->singleton(Core::class, function ($app) {
             $config = $app->make(ConfigurationStore::class);
             $cache = $app->make(CacheStore::class);
 

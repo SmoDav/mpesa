@@ -5,26 +5,12 @@ namespace SmoDav\Mpesa\C2B;
 use Exception;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
-use SmoDav\Mpesa\Engine\Core;
-use SmoDav\Mpesa\Traits\MakesRequest;
+use SmoDav\Mpesa\Repositories\Endpoint;
+use SmoDav\Mpesa\Traits\UsesCore;
 
-/**
- * Class Registrar.
- *
- * @category PHP
- *
- * @author   David Mjomba <smodavprivate@gmail.com>
- *
- * @method Registrar onConfirmation(string $confirmationURL)
- * @method Registrar onTimeout(string $onTimeout)
- * @method Registrar onValidation(string $validationURL)
- * @method Registrar register(string $shortCode)
- * @method stdClass submit(string $shortCode = null, string $confirmationURL = null, string $validationURL = null, string $onTimeout = null, string $account = null)
- * @method Registrar usingAccount(string $account)
- */
 class Registrar
 {
-    use MakesRequest;
+    use UsesCore;
 
     /**
      * The short code to register callbacks for.
@@ -66,7 +52,7 @@ class Registrar
      *
      * @param $shortCode
      *
-     * @return $this
+     * @return self
      */
     public function register($shortCode)
     {
@@ -80,7 +66,7 @@ class Registrar
      *
      * @param $validationURL
      *
-     * @return $this
+     * @return self
      */
     public function onValidation($validationURL)
     {
@@ -94,7 +80,7 @@ class Registrar
      *
      * @param $confirmationURL
      *
-     * @return $this
+     * @return self
      */
     public function onConfirmation($confirmationURL)
     {
@@ -108,7 +94,7 @@ class Registrar
      *
      * @param string $onTimeout
      *
-     * @return $this
+     * @return self
      */
     public function onTimeout($onTimeout = 'Completed')
     {
@@ -138,10 +124,11 @@ class Registrar
     /**
      * Initiate the registration process.
      *
-     * @param null $shortCode
-     * @param null $confirmationURL
-     * @param null $validationURL
-     * @param null $onTimeout
+     * @param string|null $shortCode
+     * @param string|null $confirmationURL
+     * @param string|null $validationURL
+     * @param string|null $onTimeout
+     * @param string|null $account
      *
      * @return mixed
      *
@@ -149,27 +136,27 @@ class Registrar
      */
     public function submit($shortCode = null, $confirmationURL = null, $validationURL = null, $onTimeout = null, $account = null)
     {
-        $account = $account ?: $this->account;
-
         if ($onTimeout) {
             $this->onTimeout($onTimeout);
         }
 
+        $this->core->useAccount($account ?: $this->account);
+
         $body = [
             'ShortCode'       => $shortCode ?: $this->shortCode,
-            'ResponseType'    => $onTimeout ?: $this->onTimeout,
+            'ResponseType'    => $this->onTimeout,
             'ConfirmationURL' => $confirmationURL ?: $this->confirmationURL,
             'ValidationURL'   => $validationURL ?: $this->validationURL
         ];
 
         try {
-            $response = $this->makeRequest(
+            $response = $this->clientRequest(
                 $body,
-                Core::instance()->getEndpoint(MPESA_REGISTER, $account),
+                $this->core->configRepository()->url(Endpoint::MPESA_REGISTER),
                 $account
             );
 
-            return \json_decode($response->getBody());
+            return json_decode($response->getBody());
         } catch (RequestException $exception) {
             $message = $exception->getResponse() ?
                $exception->getResponse()->getReasonPhrase() :
