@@ -12,8 +12,7 @@
     ],
     "autoload": {
         "files": [
-            "src/Mpesa/Support/helpers.php",
-            "src/Mpesa/Support/constants.php"
+            "src/Mpesa/Support/helpers.php"
         ],
         "psr-4": {
             "SmoDav\\Mpesa\\": "src/Mpesa/"

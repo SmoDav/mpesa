@@ -5,13 +5,6 @@ namespace SmoDav\Mpesa\Laravel\Stores;
 use Illuminate\Cache\Repository;
 use SmoDav\Mpesa\Contracts\CacheStore;
 
-/**
- * Class LaravelCache
- *
- * @category PHP
- *
- * @author   David Mjomba <smodavprivate@gmail.com>
- */
 class LaravelCache implements CacheStore
 {
     /**
@@ -47,10 +40,23 @@ class LaravelCache implements CacheStore
      *
      * @param string                                     $key
      * @param mixed                                      $value
-     * @param \DateTimeInterface|\DateInterval|float|int $minutes
+     * @param \DateTimeInterface|\DateInterval|float|int $seconds
      */
-    public function put($key, $value, $minutes = null)
+    public function put($key, $value, $seconds = null)
     {
-        $this->repository->put($key, $value, $minutes);
+        $this->repository->put($key, $value, $seconds);
+    }
+
+    /**
+     * Get the cache or default value from the store and delete it.
+     *
+     * @param $key
+     * @param $default
+     *
+     * @return mixed
+     */
+    public function pull($key, $default = null)
+    {
+        return $this->repository->pull($key, $default);
     }
 }

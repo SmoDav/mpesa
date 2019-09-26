@@ -4,30 +4,21 @@ namespace SmoDav\Mpesa\C2B;
 
 use Carbon\Carbon;
 use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
-use SmoDav\Mpesa\Engine\Core;
-use SmoDav\Mpesa\Repositories\ConfigurationRepository;
-use SmoDav\Mpesa\Traits\MakesRequest;
+use SmoDav\Mpesa\Repositories\Endpoint;
+use SmoDav\Mpesa\Traits\UsesCore;
+use SmoDav\Mpesa\Traits\Validates;
 
-/**
- * Class STK.
- *
- * @category PHP
- *
- * @author   David Mjomba <smodavprivate@gmail.com>
- *
- * @method STK from(string $number)
- * @method STK request(string $amount)
- * @method stdClass push(string $amount = null, string $number = null, string $reference = null, string $description = null, string $account = null)
- * @method STK setCommand(string $command)
- * @method STK usingAccount(string $account)
- * @method STK usingReference(string $reference, string $description)
- * @method stdClass validate(string $checkoutRequestID, string $account = null)
- */
 class STK
 {
-    use MakesRequest;
+    use UsesCore, Validates;
+
+    const CUSTOMER_BUYGOODS_ONLINE = 'CustomerBuyGoodsOnline';
+    const CUSTOMER_PAYBILL_ONLINE = 'CustomerPayBillOnline';
+    const VALID_COMMANDS = [
+        self::CUSTOMER_BUYGOODS_ONLINE,
+        self::CUSTOMER_PAYBILL_ONLINE,
+    ];
 
     /**
      * The mobile number
@@ -69,7 +60,7 @@ class STK
      *
      * @var string
      */
-    protected $command = CUSTOMER_PAYBILL_ONLINE;
+    protected $command = self::CUSTOMER_PAYBILL_ONLINE;
 
     /**
      * Set the account to be used.
@@ -91,12 +82,12 @@ class STK
      * @param int $amount
      *
      * @return self
+     *
+     * @throws InvalidArgumentException
      */
     public function request($amount)
     {
-        if (!is_numeric($amount)) {
-            throw new InvalidArgumentException('The amount must be numeric');
-        }
+        $this->validateAmount($amount);
 
         $this->amount = $amount;
 
@@ -110,12 +101,12 @@ class STK
      * @param int $number
      *
      * @return self
+     *
+     * @throws InvalidArgumentException
      */
     public function from($number)
     {
-        if (! Str::startsWith($number, '2547')) {
-            throw new InvalidArgumentException('The subscriber number must start with 2547');
-        }
+        $this->validateNumber($number);
 
         $this->number = $number;
 
@@ -144,10 +135,12 @@ class STK
      * @param string $command
      *
      * @return self
+     *
+     * @throws InvalidArgumentException
      */
     public function setCommand($command)
     {
-        if (! in_array($command, VALID_COMMANDS)) {
+        if (! in_array($command, self::VALID_COMMANDS)) {
             throw new InvalidArgumentException('Invalid command sent');
         }
 
@@ -157,37 +150,62 @@ class STK
     }
 
     /**
+     * Set the properties that require validation.
+     *
+     * @param string|null $amount
+     * @param string|null $number
+     * @param string|null $command
+     *
+     * @return void
+     */
+    private function set($amount, $number, $command)
+    {
+        $map = [
+            'amount' => 'request',
+            'number' => 'from',
+            'command' => 'setCommand',
+        ];
+
+        foreach ($map as $var => $method) {
+            if ($$var) {
+                call_user_func([$this, $method], $$var);
+            }
+        }
+    }
+
+    /**
      * Prepare the STK Push request
      *
-     * @param int    $amount
-     * @param int    $number
-     * @param string $reference
-     * @param string $description
-     * @param string $account
+     * @param int|null    $amount
+     * @param int|null    $number
+     * @param string|null $reference
+     * @param string|null $description
+     * @param string|null $account
+     * @param string|null $command
      *
      * @return mixed
      */
     public function push($amount = null, $number = null, $reference = null, $description = null, $account = null, $command = null)
     {
-        $account = $account ?: $this->account;
+        $this->set($amount, $number, $command);
+
+        $this->core->useAccount($account ?: $this->account);
         $time = Carbon::now()->format('YmdHis');
-        $configs = (new ConfigurationRepository)->useAccount($account);
 
-        $paybill   = $configs->getAccountKey('lnmo.paybill');
-        $shortCode = $configs->getAccountKey('lnmo.shortcode');
-        $passkey   = $configs->getAccountKey('lnmo.passkey');
-        $callback  = $configs->getAccountKey('lnmo.callback');
+        $paybill   = $this->core->configRepository()->getAccountKey('lnmo.paybill');
+        $shortCode = $this->core->configRepository()->getAccountKey('lnmo.shortcode');
+        $passkey   = $this->core->configRepository()->getAccountKey('lnmo.passkey');
+        $callback  = $this->core->configRepository()->getAccountKey('lnmo.callback');
 
-        $command = $command ?: $this->command;
-        $partyB  = $command == CUSTOMER_PAYBILL_ONLINE ? $shortCode : $paybill;
+        $partyB  = $this->command == self::CUSTOMER_PAYBILL_ONLINE ? $shortCode : $paybill;
 
         $body = [
             'BusinessShortCode' => $shortCode,
-            'Password'          => $this->getPassword($shortCode, $passkey, $time),
+            'Password'          => $this->password($shortCode, $passkey, $time),
             'Timestamp'         => $time,
-            'TransactionType'   => $command,
-            'Amount'            => $amount ?: $this->amount,
-            'PartyA'            => $number ?: $this->number,
+            'TransactionType'   => $this->command,
+            'Amount'            => $this->amount,
+            'PartyA'            => $this->number,
             'PartyB'            => $partyB,
             'PhoneNumber'       => $number ?: $this->number,
             'CallBackURL'       => $callback,
@@ -196,10 +214,9 @@ class STK
         ];
 
         try {
-            $response = $this->makeRequest(
+            $response = $this->clientRequest(
                 $body,
-                Core::instance()->getEndpoint(MPESA_LNMO, $account),
-                $account
+                $this->core->configRepository()->url(Endpoint::MPESA_LNMO),
             );
 
             return json_decode($response->getBody());
@@ -217,25 +234,23 @@ class STK
      */
     public function validate($checkoutRequestID, $account = null)
     {
-        $account = $account ?: $this->account;
+        $this->core->useAccount($account ?: $this->account);
         $time = Carbon::now()->format('YmdHis');
-        $configs = (new ConfigurationRepository)->useAccount($account);
 
-        $shortCode = $configs->getAccountKey('lnmo.shortcode');
-        $passkey   = $configs->getAccountKey('lnmo.passkey');
+        $shortCode = $this->core->configRepository()->getAccountKey('lnmo.shortcode');
+        $passkey   = $this->core->configRepository()->getAccountKey('lnmo.passkey');
 
         $body = [
             'BusinessShortCode' => $shortCode,
-            'Password'          => $this->getPassword($shortCode, $passkey, $time),
+            'Password'          => $this->password($shortCode, $passkey, $time),
             'Timestamp'         => $time,
             'CheckoutRequestID' => $checkoutRequestID,
         ];
 
         try {
-            $response = $this->makeRequest(
+            $response = $this->clientRequest(
                 $body,
-                Core::instance()->getEndpoint(MPESA_LNMO_VALIDATE, $account),
-                $account
+                $this->core->configRepository()->url(Endpoint::MPESA_LNMO_VALIDATE),
             );
 
             return json_decode($response->getBody());

@@ -18,6 +18,7 @@ The customer then confirms the transaction. If the validation of the customer fa
 Pull in the package through Composer.
 
 ### Native Addon
+
 When using vanilla PHP, modify your `composer.json` file to include:
 
 ```json
@@ -27,6 +28,7 @@ When using vanilla PHP, modify your `composer.json` file to include:
     ]
   },
 ```
+
 This script will copy the default configuration file to a config folder in the root directory of your project.
 Now proceed to require the package.
 
@@ -35,6 +37,8 @@ Now proceed to require the package.
 Run `composer require smodav/mpesa` to get the latest stable version of the package.
 
 ## Migration from previous versions
+
+v5 of the package changes the implementation and introduces some breaking changes. Please have a look at the [CHANGELOG](https://github.com/SmoDav/mpesa/CHANGELOG.md).
 
 v4 of this package uses a new configuration setup. You will need to update your config file in order to upgrade v3 to v4. v2 is still incompatible since it uses the older API version.
 
@@ -162,7 +166,11 @@ Also, note the difference between the `business shortcode` and your `paybill num
 
 ## Usage
 
-For Vanilla PHP you will need to initialize the core engine before any requests below.
+For Vanilla PHP you will need to initialize the core engine before any requests as shown below. The package comes with a vanilla php implementation of the cache and configuration store, `NativeCache` and `NativeConfig`.
+
+The `NativeConfig` receives the custom location for the configuration file to be used as the first constructor argument. If no value is passed when creating the instance, it will use the default configuration and look for a configuration file on the root of the project under `configs` directory.
+
+The `NativeCache` receives a custom directory path as the first constructor argument. The path denotes where the cache should store its files. If no path is provided, the default cache location in the config will be used.
 
 ```php
 use GuzzleHttp\Client;
@@ -173,7 +181,11 @@ use SmoDav\Mpesa\Native\NativeConfig;
 require "vendor/autoload.php";
 
 $config = new NativeConfig();
-new Core(new Client, $config, new NativeCache($config));
+$cache = new NativeCache($config->get('cache_location'));
+// or
+$cache = new NativeCache(__DIR__ . '/../some/awesome/directory');
+
+$core = new Core(new Client, $config, $cache);
 
 ```
 
@@ -191,20 +203,20 @@ $conf = 'http://example.com/mpesa/confirm?secret=some_secret_hash_key';
 $val = 'http://example.com/mpesa/validate?secret=some_secret_hash_key';
 
 
-$response = (new Registrar)->register(600000)
+$response = (new Registrar($core))->register(600000)
     ->onConfirmation($conf)
     ->onValidation($val)
     ->submit();
 
 /****** OR ********/
-$response = (new Registrar)->submit(600000, $conf, $val);
+$response = (new Registrar($core))->submit(600000, $conf, $val);
 
 ```
 
 When having multiple accounts, switch using the `usingAccount` method. We currently have `staging`, `paybill_1` and `paybill_2` with `staging` as the default:
 
 ```php
-$response = (new Registrar)
+$response = (new Registrar($core))
     ->register(600000)
     ->usingAccount('paybill_1')
     ->onConfirmation($conf)
@@ -212,7 +224,7 @@ $response = (new Registrar)
     ->submit();
 
 /****** OR ********/
-$response = (new Registrar)->submit(600000, $conf, $val, null, 'paybill_1');
+$response = (new Registrar($core))->submit(600000, $conf, $val, null, 'paybill_1');
 ```
 
 ##### Laravel
@@ -260,7 +272,7 @@ will be used.
 ```php
 use SmoDav\Mpesa\C2B\Simulate;
 
-$simulate = new Simulate($engine);
+$simulate = new Simulate($core)
 
 $response = $simulate->request(10)
     ->from(254722000000)
@@ -355,7 +367,7 @@ will be used.
 ```php
 use SmoDav\Mpesa\C2B\STK;
 
-$stk = new STK($engine);
+$stk = new STK($core);
 
 $response = $stk->request(10)
     ->from(254722000000)
@@ -447,7 +459,7 @@ Validate a C2B STK Push transaction.
 ```php
 use SmoDav\Mpesa\C2B\STK;
 
-$stk = new STK($engine);
+$stk = new STK($core);
     
 $response = $stk->validate('ws_CO_16022018125');
 ```

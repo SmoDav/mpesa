@@ -2,11 +2,12 @@
 
 namespace SmoDav\Mpesa\Auth;
 
+use Carbon\Carbon;
 use GuzzleHttp\Exception\RequestException;
 use SmoDav\Mpesa\Engine\Core;
 use SmoDav\Mpesa\Exceptions\ConfigurationException;
 use SmoDav\Mpesa\Exceptions\ErrorException;
-use SmoDav\Mpesa\Repositories\ConfigurationRepository;
+use SmoDav\Mpesa\Repositories\Endpoint;
 
 /**
  * Class Authenticator.
@@ -23,29 +24,62 @@ class Authenticator
     const AC_TOKEN = 'MP:';
 
     /**
-     * Get the access token required to transact.
+     * @var Core
+     */
+    private $core;
+
+    public function __construct(Core $core)
+    {
+        $this->core = $core;
+    }
+
+    /**
+     * Remove all the access tokens
      *
-     * @param string $account
+     * @return void
+     */
+    public function flushTokens()
+    {
+        collect($this->core->configRepository()->config('accounts'))
+            ->each(function ($account) {
+                $this->core->cache()->pull($this->getCacheKey($account['key'], $account['secret']));
+            });
+    }
+
+    /**
+     * Get the cache key for the given key and secret
+     *
+     * @param string $key
+     * @param string $secret
+     *
+     * @return void
+     */
+    protected function getCacheKey($key, $secret)
+    {
+        return self::AC_TOKEN . "{$key}{$secret}";
+    }
+
+    /**
+     * Get the access token required to transact.
      *
      * @return mixed
      *
      * @throws ConfigurationException
      */
-    public static function authenticate($account = null)
+    public function authenticate()
     {
-        $configs = (new ConfigurationRepository)->useAccount($account);
-        $key = $configs->getAccountKey('key');
-        $secret = $configs->getAccountKey('secret');
-        $cacheKey = self::AC_TOKEN . "{$key}{$secret}";
+        $key = $this->core->configRepository()->getAccountKey('key');
+        $secret = $this->core->configRepository()->getAccountKey('secret');
+        $cacheKey = $this->getCacheKey($key, $secret);
 
-        if ($token = Core::instance()->cache()->get($cacheKey)) {
+        if ($token = $this->core->cache()->get($cacheKey)) {
             return $token;
         }
 
         try {
-            $response = self::makeRequest($key, $secret, $account);
+            $response = $this->makeRequest($key, $secret);
             $body = json_decode($response->getBody());
-            self::saveCredentials($cacheKey, $body);
+            $this->saveCredentials($cacheKey, $body);
 
             return $body->access_token;
         } catch (RequestException $exception) {
@@ -53,7 +87,7 @@ class Authenticator
                $exception->getResponse()->getReasonPhrase() :
                $exception->getMessage();
 
-            throw self::generateException($message);
+            throw $this->generateException($message);
         }
     }
 
@@ -62,12 +96,12 @@ class Authenticator
      *
      * @return mixed|\Psr\Http\Message\ResponseInterface
      */
-    private static function makeRequest($key, $secret, $account)
+    private function makeRequest($key, $secret)
     {
         $credentials = base64_encode($key . ':' . $secret);
-        $endpoint = Core::instance()->getEndpoint(MPESA_AUTH, $account);
+        $endpoint = $this->core->configRepository()->url(Endpoint::MPESA_AUTH);
 
-        return Core::instance()->client()->request('GET', $endpoint, [
+        return $this->core->client()->request('GET', $endpoint, [
             'headers' => [
                 'Authorization' => 'Basic ' . $credentials,
                 'Content-Type'  => 'application/json',
@@ -80,11 +114,11 @@ class Authenticator
      *
      * @param $credentials
      */
-    private static function saveCredentials($key, $credentials)
+    private function saveCredentials($key, $credentials)
     {
-        $ttl = ($credentials->expires_in / 60) - 2;
+        $ttl = Carbon::now()->addSeconds($credentials->expires_in)->subMinute();
 
-        Core::instance()->cache()->put($key, $credentials->access_token, $ttl);
+        $this->core->cache()->put($key, $credentials->access_token, $ttl);
     }
 
     /**
@@ -94,7 +128,7 @@ class Authenticator
      *
      * @return ErrorException|ConfigurationException
      */
-    private static function generateException($reason)
+    private function generateException($reason)
     {
         switch (strtolower($reason)) {
             case 'bad request: invalid credentials':

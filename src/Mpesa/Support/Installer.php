@@ -11,8 +11,8 @@ class Installer
         $config    = __DIR__ . '/../../../config/mpesa.php';
         $configDir = self::getConfigDirectory($event);
 
-        if (! \is_file($configDir . '/mpesa.php')) {
-            \copy($config, $configDir . '/mpesa.php');
+        if (! is_file($configDir . '/mpesa.php')) {
+            copy($config, $configDir . '/mpesa.php');
         }
     }
 
@@ -21,8 +21,8 @@ class Installer
         $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
         $configDir = $vendorDir . '/../config';
 
-        if (! \is_dir($configDir)) {
-            \mkdir($configDir, 0755, true);
+        if (! is_dir($configDir)) {
+            mkdir($configDir, 0755, true);
         }
 
         return $configDir;
