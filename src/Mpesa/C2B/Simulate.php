@@ -192,7 +192,7 @@ class Simulate
         try {
             $response = $this->clientRequest(
                 $body,
-                $this->core->configRepository()->url(Endpoint::MPESA_SIMULATE),
+                $this->core->configRepository()->url(Endpoint::MPESA_SIMULATE)
             );
 
             return json_decode($response->getBody());

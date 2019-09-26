@@ -28,7 +28,7 @@ class NativeCache implements CacheStore
      *
      * @param string|null $cacheDirectory
      */
-    public function __construct(string $cacheDirectory = null)
+    public function __construct($cacheDirectory = null)
     {
         $this->setUp($cacheDirectory);
     }
@@ -40,7 +40,7 @@ class NativeCache implements CacheStore
      *
      * @return void
      */
-    private function setUp(string $cacheDirectory = null)
+    private function setUp($cacheDirectory = null)
     {
         $cacheDirectory = $cacheDirectory
             ?: (new ConfigurationRepository(new NativeConfig))->config('cache_location');

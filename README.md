@@ -11,7 +11,11 @@ The merchant submits authentication details, transaction details, callback url a
 
 After request submission, the merchant receives instant feedback with validity status of their requests. 
 The C2B API handles customer validation and authentication via USSD push. 
-The customer then confirms the transaction. If the validation of the customer fails or the customer declines the transaction, the API makes a callback to merchant. Otherwise the transaction is processed and its status is made through a callback. 
+The customer then confirms the transaction. If the validation of the customer fails or the customer declines the transaction, the API makes a callback to merchant. Otherwise the transaction is processed and its status is made through a callback.
+
+If you enjoy using this package, please take a moment and [buy me some coffee.](https://rave.flutterwave.com/donate/fiqyumudlt6t)
+
+
 
 ## Installation
 
