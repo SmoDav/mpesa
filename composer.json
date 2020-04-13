@@ -39,13 +39,13 @@
     "require": {
         "php": ">=5.6.0",
         "guzzlehttp/guzzle": "^6.2",
-        "illuminate/support": "^5.0|^6.0",
+        "illuminate/support": "^5.0|^6.0|^7.0",
         "nesbot/carbon": "^1.0 || ^2.0",
         "predis/predis": "^1.1"
     },
     "require-dev": {
         "mockery/mockery": "dev-master",
-        "phpunit/phpunit": "~5.7|~6.2"
+        "phpunit/phpunit": "~5.7|~6.2|~8.5"
     },
     "minimum-stability": "stable"
 }
