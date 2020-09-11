@@ -9,7 +9,7 @@ return [
     | This is the default account to be used when none is specified.
     */
 
-    'default' => 'staging',
+    'default' => 'test',
 
     /*
     |--------------------------------------------------------------------------
@@ -20,7 +20,7 @@ return [
     | where the cache information will be stored.
     */
 
-    'cache_location' => '../cache',
+    'cache_location' => __DIR__ . '/cache',
 
     /*
     |--------------------------------------------------------------------------
@@ -41,10 +41,10 @@ return [
     */
 
     'accounts' => [
-        'staging' => [
+        'test' => [
             'sandbox' => true,
-            'key' => '',
-            'secret' => '',
+            'key' => 'key1',
+            'secret' => 'secret1',
             'initiator' => 'apitest363',
             'id_validation_callback' => 'http://example.com/callback?secret=some_secret_hash_key',
             'lnmo' => [
@@ -57,8 +57,8 @@ return [
 
         'production' => [
             'sandbox' => false,
-            'key' => '',
-            'secret' => '',
+            'key' => 'key2',
+            'secret' => 'secret2',
             'initiator' => 'apitest363',
             'id_validation_callback' => 'http://example.com/callback?secret=some_secret_hash_key',
             'lnmo' => [

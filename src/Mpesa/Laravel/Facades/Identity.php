@@ -5,11 +5,15 @@ namespace SmoDav\Mpesa\Laravel\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * Class Identity
+ * Class Identity.
  *
  * @category PHP
  *
  * @author   David Mjomba <smodavprivate@gmail.com>
+ *
+ * @method static stdClass validate(string $number, callable $callback, string $account = null)
+ *
+ * @see \SmoDav\Mpesa\C2B\Registrar
  */
 class Identity extends Facade
 {

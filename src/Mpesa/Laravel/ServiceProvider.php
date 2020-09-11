@@ -3,7 +3,6 @@
 namespace SmoDav\Mpesa\Laravel;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
 use Illuminate\Support\ServiceProvider as RootProvider;
 use SmoDav\Mpesa\C2B\Identity;
 use SmoDav\Mpesa\C2B\Registrar;
@@ -37,11 +36,16 @@ class ServiceProvider extends RootProvider
         $this->registerFacades();
     }
 
+    /**
+     * Bind the MPesa Instances.
+     *
+     * @return void
+     */
     private function bindInstances()
     {
         $this->app->bind(ConfigurationStore::class, LaravelConfig::class);
         $this->app->bind(CacheStore::class, LaravelCache::class);
-        $this->app->bind(Core::class, function ($app) {
+        $this->app->singleton(Core::class, function ($app) {
             $config = $app->make(ConfigurationStore::class);
             $cache = $app->make(CacheStore::class);
 
@@ -66,9 +70,5 @@ class ServiceProvider extends RootProvider
         $this->app->bind('mp_simulate', function () {
             return $this->app->make(Simulate::class);
         });
-
-        //        $this->app->bind('mpesa', function () {
-//            return $this->app->make(Cashier::class);
-//        });
     }
 }

@@ -2,33 +2,23 @@
 
 namespace SmoDav\Mpesa\Tests;
 
-use Mockery;
-use GuzzleHttp\Psr7;
 use GuzzleHttp\ClientInterface;
 use PHPUnit\Framework\TestCase as PHPUnit;
 use SmoDav\Mpesa\Engine\Core;
-use SmoDav\Mpesa\Native\NativeCache;
 use SmoDav\Mpesa\Native\NativeConfig;
+use SmoDav\Mpesa\Tests\Unit\NativeImplementationsTest;
 
 class TestCase extends PHPUnit
 {
     /**
-     * Engine Core.
+     * Get the core instance.
      *
-     * @var Engine
-     **/
-    protected $engine;
-
-    /**
-     * Set mocks.
-     **/
-    public function setUp()
+     * @param ClientInterface $client
+     *
+     * @return Core
+     */
+    protected function core(ClientInterface $client)
     {
-        $client  = Mockery::mock(ClientInterface::class);
-        $promise = new Psr7\Response();
-        $client->shouldReceive('request')->andReturn($promise);
-        $config       = new NativeConfig();
-        $cache        = new NativeCache($config);
-        $this->engine = new Core($client, $config, $cache);
+        return new Core($client, new NativeConfig(NativeImplementationsTest::CONFIG_FILE));
     }
 }

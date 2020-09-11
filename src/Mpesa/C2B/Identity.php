@@ -4,25 +4,13 @@ namespace SmoDav\Mpesa\C2B;
 
 use Carbon\Carbon;
 use GuzzleHttp\Exception\RequestException;
-use SmoDav\Mpesa\Engine\Core;
-use SmoDav\Mpesa\Repositories\EndpointsRepository;
+use SmoDav\Mpesa\Repositories\Endpoint;
+use SmoDav\Mpesa\Traits\UsesCore;
+use SmoDav\Mpesa\Traits\Validates;
 
 class Identity
 {
-    protected $engine;
-
-    protected $endpoint;
-
-    /**
-     * Identity constructor.
-     *
-     * @param Core $engine
-     */
-    public function __construct(Core $engine)
-    {
-        $this->engine   = $engine;
-        $this->endpoint = EndpointsRepository::build(MPESA_ID_CHECK);
-    }
+    use UsesCore, Validates;
 
     /**
      * Prepare the number validation request
@@ -34,22 +22,21 @@ class Identity
      */
     public function validate($number, $callback = null)
     {
-        if (! starts_with($number, '2547')) {
-            throw new \InvalidArgumentException('The subscriber number must start with 2547');
-        }
+        $this->validateNumber($number);
 
-        $time            = Carbon::now()->format('YmdHis');
-        $shortCode       = $this->engine->config->get('mpesa.short_code');
-        $passkey         = $this->engine->config->get('mpesa.passkey');
-        $defaultCallback = $this->engine->config->get('mpesa.id_validation_callback');
-        $initiator       = $this->engine->config->get('mpesa.initiator');
-        $password        = \base64_encode($shortCode . $passkey . $time);
+        $time = Carbon::now()->format('YmdHis');
+
+        $shortCode = $this->core->configRepository()->getAccountKey('lnmo.shortcode');
+        $passkey   = $this->core->configRepository()->getAccountKey('lnmo.passkey');
+        $callback  = $this->core->configRepository()->getAccountKey('lnmo.callback');
+
+        $defaultCallback = $this->core->configRepository()->getAccountKey('id_validation_callback');
+        $initiator = $this->core->configRepository()->getAccountKey('initiator');
 
         $body = [
-            //Fill in the request parameters with valid values
             'Initiator'         => $initiator,
             'BusinessShortCode' => $shortCode,
-            'Password'          => $password,
+            'Password'          => $this->password($shortCode, $passkey, $time),
             'Timestamp'         => $time,
             'TransactionType'   => 'CheckIdentity',
             'PhoneNumber'       => $number,
@@ -58,29 +45,14 @@ class Identity
         ];
 
         try {
-            $response = $this->makeRequest($body);
+            $response = $this->clientRequest(
+                $body,
+                $this->core->configRepository()->url(Endpoint::MPESA_ID_CHECK)
+            );
 
-            return \json_decode($response->getBody());
+            return json_decode($response->getBody());
         } catch (RequestException $exception) {
-            return \json_decode($exception->getResponse()->getBody());
+            return json_decode($exception->getResponse()->getBody());
         }
-    }
-
-    /**
-     * Initiate the request.
-     *
-     * @param array $body
-     *
-     * @return mixed|\Psr\Http\Message\ResponseInterface
-     */
-    private function makeRequest($body = [])
-    {
-        return $this->engine->client->request('POST', $this->endpoint, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->engine->auth->authenticate(),
-                'Content-Type'  => 'application/json',
-            ],
-            'json' => $body,
-        ]);
     }
 }

@@ -6,41 +6,28 @@ use GuzzleHttp\ClientInterface;
 use SmoDav\Mpesa\Auth\Authenticator;
 use SmoDav\Mpesa\Contracts\CacheStore;
 use SmoDav\Mpesa\Contracts\ConfigurationStore;
-use SmoDav\Mpesa\Repositories\EndpointsRepository;
+use SmoDav\Mpesa\Native\NativeCache;
+use SmoDav\Mpesa\Native\NativeConfig;
+use SmoDav\Mpesa\Repositories\ConfigurationRepository;
 
-/**
- * Class Core.
- *
- * @category PHP
- *
- * @author   David Mjomba <smodavprivate@gmail.com>
- */
 class Core
 {
     /**
-     * @var ConfigurationStore
+     * The configuration
+     *
+     * @var ConfigurationRepository
      */
-    public $config;
-
-    /**
-     * @var CacheStore
-     */
-    public $cache;
-
-    /**
-     * @var Core
-     */
-    public static $instance;
+    private $configRepository;
 
     /**
      * @var ClientInterface
      */
-    public $client;
+    private $client;
 
     /**
      * @var Authenticator
      */
-    public $auth;
+    private $auth;
 
     /**
      * Core constructor.
@@ -49,33 +36,97 @@ class Core
      * @param ConfigurationStore $configStore
      * @param CacheStore         $cacheStore
      */
-    public function __construct(ClientInterface $client, ConfigurationStore $configStore, CacheStore $cacheStore)
+    public function __construct(ClientInterface $client, ConfigurationStore $configStore = null, CacheStore $cacheStore = null)
     {
-        $this->config = $configStore;
-        $this->cache  = $cacheStore;
-        $this->setClient($client);
-
-        $this->initialize();
-
-        self::$instance = $this;
+        $this->client = $client;
+        $this->setupStores($configStore, $cacheStore);
+        $this->initialise();
     }
 
     /**
-     * Initialize the Core process.
+     * Use the native implementation of the stores.
+     *
+     * @return void
      */
-    private function initialize()
+    protected function setupStores(ConfigurationStore $configStore = null, CacheStore $cacheStore = null)
     {
-        new EndpointsRepository($this->config);
+        $this->configRepository = new ConfigurationRepository($configStore ?: new NativeConfig);
+        $this->cache = $cacheStore ?: new NativeCache($this->configRepository->config('cache_location'));
+    }
+
+    /**
+     * Initialise the Core process.
+     */
+    private function initialise()
+    {
         $this->auth = new Authenticator($this);
     }
 
     /**
-     * Set http client.
+     * Get the configuration repository.
      *
-     * @param ClientInterface $client
-     **/
-    public function setClient(ClientInterface $client)
+     * @return ConfigurationRepository
+     */
+    public function configRepository()
+    {
+        return $this->configRepository;
+    }
+
+    /**
+     * Get the cache store.
+     *
+     * @return CacheStore
+     */
+    public function cache()
+    {
+        return $this->cache;
+    }
+
+    /**
+     * Get the client.
+     *
+     * @return ClientInterface
+     */
+    public function client()
+    {
+        return $this->client;
+    }
+
+    /**
+     * Get the client.
+     *
+     * @return Authenticator
+     */
+    public function auth()
+    {
+        return $this->auth;
+    }
+
+    /**
+     * Switch the current account
+     *
+     * @param string|null $account
+     *
+     * @return self
+     */
+    public function useAccount($account = null)
+    {
+        $this->configRepository->useAccount($account);
+
+        return $this;
+    }
+
+    /**
+     * Switch the client instance.
+     *
+     * @param string|null $account
+     *
+     * @return self
+     */
+    public function useClient(ClientInterface $client)
     {
         $this->client = $client;
+
+        return $this;
     }
 }

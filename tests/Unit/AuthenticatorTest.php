@@ -6,69 +6,44 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use SmoDav\Mpesa\Auth\Authenticator;
-use PHPUnit\Framework\TestCase;
-use SmoDav\Mpesa\Engine\Core;
-use SmoDav\Mpesa\Exceptions\ConfigurationException;
-use SmoDav\Mpesa\Native\NativeCache;
-use SmoDav\Mpesa\Native\NativeConfig;
+use SmoDav\Mpesa\Exceptions\ErrorException;
+use SmoDav\Mpesa\Tests\TestCase as TestCase;
 
 class AuthenticatorTest extends TestCase
 {
-    protected $config;
-    protected $cache;
-
-    protected function setUp()
-    {
-        parent::setUp();
-        $this->cleanCache();
-        $this->config =new NativeConfig();
-        $this->cache  = new NativeCache($this->config);
-    }
-
-    private function cleanCache()
-    {
-        $file = __DIR__ . '/../../cache/.mpc';
-        if (\is_file($file)) {
-            \unlink($file);
-        }
-    }
-
-    /**
+    /*
      * Test that authenticator works.
      *
      * @test
      **/
-    public function testAuthentication()
+    public function testCanAuthenticateUsingRequestAndCached()
     {
         $mock = new MockHandler([
-            new Response(202, [], \json_encode(['access_token' => 'access', 'expires_in' => 3599])),
+            new Response(202, [], json_encode(['access_token' => 'access', 'expires_in' => 3599])),
         ]);
 
-        $handler = HandlerStack::create($mock);
-        $client  = new Client(['handler' => $handler]);
-        $engine  = new Core($client, $this->config, $this->cache);
-        $auth    = new Authenticator($engine);
-        $token   = $auth->authenticate();
-        $this->assertEquals('access', $token);
-    }
+        $core = $this->core(new Client(['handler' => HandlerStack::create($mock)]));
 
-    /**
-     * Test that authenticator works.
-     *
-     * @test
-     **/
-    public function testAuthenticationFailure()
-    {
-        $this->expectException(ConfigurationException::class);
+        $this->assertEquals('access', $core->auth()->authenticate());
+
         $mock = new MockHandler([
-            new Response(400, [], \json_encode([]), null, 'Bad Request: Invalid Credentials'),
+            new Response(403, [], json_encode(['access_token' => 'access', 'expires_in' => 3599])),
         ]);
 
-        $handler = HandlerStack::create($mock);
-        $client  = new Client(['handler' => $handler]);
-        $engine  = new Core($client, $this->config, $this->cache);
-        $auth    = new Authenticator($engine);
-        $auth->authenticate();
+        $core = $this->core(new Client(['handler' => HandlerStack::create($mock)]));
+
+        $this->assertEquals('access', $core->auth()->authenticate());
+
+        $mock = new MockHandler([
+            new Response(403, [], json_encode(['access_token' => 'access', 'expires_in' => 600000])),
+        ]);
+
+        $core = $this->core(new Client(['handler' => HandlerStack::create($mock)]));
+
+        $core->auth()->flushTokens();
+
+        $this->expectException(ErrorException::class);
+
+        $core->auth()->authenticate();
     }
 }

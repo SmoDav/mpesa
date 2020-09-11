@@ -4,29 +4,76 @@ namespace SmoDav\Mpesa\C2B;
 
 use Carbon\Carbon;
 use GuzzleHttp\Exception\RequestException;
-use SmoDav\Mpesa\Engine\Core;
-use SmoDav\Mpesa\Repositories\EndpointsRepository;
+use InvalidArgumentException;
+use SmoDav\Mpesa\Repositories\Endpoint;
+use SmoDav\Mpesa\Traits\UsesCore;
+use SmoDav\Mpesa\Traits\Validates;
 
 class STK
 {
-    protected $pushEndpoint;
-    protected $validateEndpoint;
-    protected $engine;
+    use UsesCore, Validates;
+
+    const CUSTOMER_BUYGOODS_ONLINE = 'CustomerBuyGoodsOnline';
+    const CUSTOMER_PAYBILL_ONLINE = 'CustomerPayBillOnline';
+    const VALID_COMMANDS = [
+        self::CUSTOMER_BUYGOODS_ONLINE,
+        self::CUSTOMER_PAYBILL_ONLINE,
+    ];
+
+    /**
+     * The mobile number
+     *
+     * @var string
+     */
     protected $number;
+
+    /**
+     * The amount to request
+     *
+     * @var int
+     */
     protected $amount;
+
+    /**
+     * The transaction reference
+     *
+     * @var string
+     */
     protected $reference;
+
+    /**
+     * The transaction description
+     *
+     * @var string
+     */
     protected $description;
 
     /**
-     * STK constructor.
+     * The MPesa account to be used.
      *
-     * @param Core $engine
+     * @var string
      */
-    public function __construct(Core $engine)
+    protected $account = null;
+
+    /**
+     * The transaction command to be used.
+     *
+     * @var string
+     */
+    protected $command = self::CUSTOMER_PAYBILL_ONLINE;
+
+    /**
+     * Set the account to be used.
+     *
+     * @param string $account
+     *
+     * @return self
+     */
+    public function usingAccount($account)
     {
-        $this->engine       = $engine;
-        $this->pushEndpoint = EndpointsRepository::build(MPESA_STK_PUSH);
-        $this->validateEndpoint = EndpointsRepository::build(MPESA_STK_PUSH_VALIDATE);
+        $this->account = $account;
+
+        return $this;
     }
 
     /**
@@ -34,13 +81,13 @@ class STK
      *
      * @param int $amount
      *
-     * @return $this
+     * @return self
+     *
+     * @throws InvalidArgumentException
      */
     public function request($amount)
     {
-        if (!\is_numeric($amount)) {
-            throw new \InvalidArgumentException('The amount must be numeric');
-        }
+        $this->validateAmount($amount);
 
         $this->amount = $amount;
 
@@ -53,13 +100,13 @@ class STK
      *
      * @param int $number
      *
-     * @return $this
+     * @return self
+     *
+     * @throws InvalidArgumentException
      */
     public function from($number)
     {
-        if (! starts_with($number, '2547')) {
-            throw new \InvalidArgumentException('The subscriber number must start with 2547');
-        }
+        $this->validateNumber($number);
 
         $this->number = $number;
 
@@ -72,7 +119,7 @@ class STK
      * @param int    $reference
      * @param string $description
      *
-     * @return $this
+     * @return self
      */
     public function usingReference($reference, $description)
     {
@@ -83,31 +130,83 @@ class STK
     }
 
     /**
+     * Set the unique command for this transaction type.
+     *
+     * @param string $command
+     *
+     * @return self
+     *
+     * @throws InvalidArgumentException
+     */
+    public function setCommand($command)
+    {
+        if (! in_array($command, self::VALID_COMMANDS)) {
+            throw new InvalidArgumentException('Invalid command sent');
+        }
+
+        $this->command = $command;
+
+        return $this;
+    }
+
+    /**
+     * Set the properties that require validation.
+     *
+     * @param string|null $amount
+     * @param string|null $number
+     * @param string|null $command
+     *
+     * @return void
+     */
+    private function set($amount, $number, $command)
+    {
+        $map = [
+            'amount' => 'request',
+            'number' => 'from',
+            'command' => 'setCommand',
+        ];
+
+        foreach ($map as $var => $method) {
+            if ($$var) {
+                call_user_func([$this, $method], $$var);
+            }
+        }
+    }
+
+    /**
      * Prepare the STK Push request
      *
-     * @param int    $amount
-     * @param int    $number
-     * @param string $reference
-     * @param string $description
+     * @param int|null    $amount
+     * @param int|null    $number
+     * @param string|null $reference
+     * @param string|null $description
+     * @param string|null $account
+     * @param string|null $command
      *
      * @return mixed
      */
-    public function push($amount = null, $number = null, $reference = null, $description = null)
+    public function push($amount = null, $number = null, $reference = null, $description = null, $account = null, $command = null)
     {
-        $time      = Carbon::now()->format('YmdHis');
-        $shortCode = $this->engine->config->get('mpesa.short_code');
-        $passkey   = $this->engine->config->get('mpesa.passkey');
-        $callback  = $this->engine->config->get('mpesa.stk_callback');
-        $password  = \base64_encode($shortCode . $passkey . $time);
+        $this->set($amount, $number, $command);
+
+        $this->core->useAccount($account ?: $this->account);
+        $time = Carbon::now()->format('YmdHis');
+
+        $paybill   = $this->core->configRepository()->getAccountKey('lnmo.paybill');
+        $shortCode = $this->core->configRepository()->getAccountKey('lnmo.shortcode');
+        $passkey   = $this->core->configRepository()->getAccountKey('lnmo.passkey');
+        $callback  = $this->core->configRepository()->getAccountKey('lnmo.callback');
+
+        $partyB  = $this->command == self::CUSTOMER_PAYBILL_ONLINE ? $shortCode : $paybill;
 
         $body = [
             'BusinessShortCode' => $shortCode,
-            'Password'          => $password,
+            'Password'          => $this->password($shortCode, $passkey, $time),
             'Timestamp'         => $time,
-            'TransactionType'   => 'CustomerPayBillOnline',
-            'Amount'            => $amount ?: $this->amount,
-            'PartyA'            => $number ?: $this->number,
-            'PartyB'            => $shortCode,
+            'TransactionType'   => $this->command,
+            'Amount'            => $this->amount,
+            'PartyA'            => $this->number,
+            'PartyB'            => $partyB,
             'PhoneNumber'       => $number ?: $this->number,
             'CallBackURL'       => $callback,
             'AccountReference'  => $reference ?: $this->reference,
@@ -115,11 +214,14 @@ class STK
         ];
 
         try {
-            $response = $this->makeRequest($body);
+            $response = $this->clientRequest(
+                $body,
+                $this->core->configRepository()->url(Endpoint::MPESA_LNMO)
+            );
 
-            return \json_decode($response->getBody());
+            return json_decode($response->getBody());
         } catch (RequestException $exception) {
-            return \json_decode($exception->getResponse()->getBody());
+            return json_decode($exception->getResponse()->getBody());
         }
     }
 
@@ -130,46 +232,30 @@ class STK
      *
      * @return json
      */
-    public function validate($checkoutRequestID)
+    public function validate($checkoutRequestID, $account = null)
     {
-        $time      = Carbon::now()->format('YmdHis');
-        $shortCode = $this->engine->config->get('mpesa.short_code');
-        $passkey   = $this->engine->config->get('mpesa.passkey');
-        $password  = \base64_encode($shortCode . $passkey . $time);
+        $this->core->useAccount($account ?: $this->account);
+        $time = Carbon::now()->format('YmdHis');
+
+        $shortCode = $this->core->configRepository()->getAccountKey('lnmo.shortcode');
+        $passkey   = $this->core->configRepository()->getAccountKey('lnmo.passkey');
 
         $body = [
             'BusinessShortCode' => $shortCode,
-            'Password'          => $password,
+            'Password'          => $this->password($shortCode, $passkey, $time),
             'Timestamp'         => $time,
-            'CheckoutRequestID'   => $checkoutRequestID,
+            'CheckoutRequestID' => $checkoutRequestID,
         ];
 
         try {
-            $response = $this->makeRequest($body, $this->validateEndpoint);
+            $response = $this->clientRequest(
+                $body,
+                $this->core->configRepository()->url(Endpoint::MPESA_LNMO_VALIDATE)
+            );
 
-            return \json_decode($response->getBody());
+            return json_decode($response->getBody());
         } catch (RequestException $exception) {
-            return \json_decode($exception->getResponse()->getBody());
+            return json_decode($exception->getResponse()->getBody());
         }
-    }
-
-    /**
-     * Initiate the request.
-     *
-     * @param array $body
-     *
-     * @return mixed|\Psr\Http\Message\ResponseInterface
-     */
-    private function makeRequest($body = [], $endpoint = null)
-    {
-        $endpoint = $endpoint ?: $this->pushEndpoint;
-
-        return $this->engine->client->request('POST', $endpoint, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->engine->auth->authenticate(),
-                'Content-Type'  => 'application/json',
-            ],
-            'json' => $body,
-        ]);
     }
 }

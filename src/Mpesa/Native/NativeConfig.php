@@ -13,8 +13,6 @@ use SmoDav\Mpesa\Contracts\ConfigurationStore;
  */
 class NativeConfig implements ConfigurationStore
 {
-    //TODO: change implementation so user can enter the location.
-
     /**
      * Mpesa configuration file.
      *
@@ -24,17 +22,20 @@ class NativeConfig implements ConfigurationStore
 
     /**
      * NativeConfig constructor.
+     *
+     * @param string|null $configPath
      */
-    public function __construct()
+    public function __construct($configPath = null)
     {
         $defaultConfig = require __DIR__ . '/../../../config/mpesa.php';
-        $userConfig    = __DIR__ . '/../../../../../../config/mpesa.php';
-        $custom        = [];
-        if (\is_file($userConfig)) {
-            $custom = require $userConfig;
+        $configPath = $configPath ?: __DIR__ . '/../../../../../../config/mpesa.php';
+        $custom = [];
+
+        if (is_file($configPath)) {
+            $custom = require $configPath;
         }
 
-        $this->config = \array_merge($defaultConfig, $custom);
+        $this->config = ['mpesa' => array_merge($defaultConfig, $custom)];
     }
 
     /**
@@ -47,12 +48,17 @@ class NativeConfig implements ConfigurationStore
      */
     public function get($key, $default = null)
     {
-        $itemKey = \explode('.', $key)[1];
+        $pieces = explode('.', $key);
+        $config = $this->config;
 
-        if (isset($this->config[$itemKey])) {
-            return $this->config[$itemKey];
+        foreach ($pieces as $piece) {
+            if (!isset($config[$piece])) {
+                return $default;
+            }
+
+            $config = $config[$piece];
         }
 
-        return $default;
+        return $config;
     }
 }
