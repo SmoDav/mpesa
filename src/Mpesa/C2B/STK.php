@@ -216,7 +216,7 @@ class STK
         $paybill   = $this->core->configRepository()->getAccountKey('lnmo.paybill');
         $shortCode = $this->core->configRepository()->getAccountKey('lnmo.shortcode');
         $passkey   = $this->core->configRepository()->getAccountKey('lnmo.passkey');
-        $callback  = $this->callback ?? $this->core->configRepository()->getAccountKey('lnmo.callback');
+        $callback  = $this->callback ?: $this->core->configRepository()->getAccountKey('lnmo.callback');
 
         $partyB  = $this->command == self::CUSTOMER_PAYBILL_ONLINE ? $shortCode : $paybill;
 
