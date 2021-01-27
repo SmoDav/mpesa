@@ -63,6 +63,27 @@ class STK
     protected $command = self::CUSTOMER_PAYBILL_ONLINE;
 
     /**
+     * The MPesa callback URL to be used for the request.
+     *
+     * @var string
+     */
+    protected $callback = null;
+    
+    /**
+     * Set the callback on completion.
+     *
+     * @param string $callback
+     *
+     * @return self
+     */
+    public function setCallback(string $callback) 
+    {
+        $this->callback = $callback;
+        
+        return $this;
+    }
+
+    /**
      * Set the account to be used.
      *
      * @param string $account
@@ -195,7 +216,7 @@ class STK
         $paybill   = $this->core->configRepository()->getAccountKey('lnmo.paybill');
         $shortCode = $this->core->configRepository()->getAccountKey('lnmo.shortcode');
         $passkey   = $this->core->configRepository()->getAccountKey('lnmo.passkey');
-        $callback  = $this->core->configRepository()->getAccountKey('lnmo.callback');
+        $callback  = $this->callback ?? $this->core->configRepository()->getAccountKey('lnmo.callback');
 
         $partyB  = $this->command == self::CUSTOMER_PAYBILL_ONLINE ? $shortCode : $paybill;
 
