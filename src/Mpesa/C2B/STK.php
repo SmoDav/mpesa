@@ -76,7 +76,7 @@ class STK
      *
      * @return self
      */
-    public function setCallback(string $callback) 
+    public function setCallback(string $callback)
     {
         $this->callback = $callback;
         
