@@ -2,7 +2,6 @@
 
 namespace SmoDav\Mpesa\Traits;
 
-use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 trait Validates
@@ -12,15 +11,12 @@ trait Validates
      *
      * @param string $number
      *
-     * @return void
-     *
      * @throws InvalidArgumentException
+     *
+     * @return void
      */
     protected function validateNumber($number)
     {
-        if (!Str::startsWith($number, '2547')) {
-            throw new InvalidArgumentException('The subscriber number must begin with 2547');
-        }
     }
 
     /**
@@ -28,9 +24,9 @@ trait Validates
      *
      * @param string|int|float $amount
      *
-     * @return void
-     *
      * @throws InvalidArgumentException
+     *
+     * @return void
      */
     protected function validateAmount($amount)
     {

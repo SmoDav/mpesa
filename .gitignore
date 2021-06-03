@@ -5,3 +5,4 @@ composer.lock
 index.php
 /cache
 /.phpintel
+.php-cs-fixer.cache
