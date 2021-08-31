@@ -4,45 +4,51 @@ namespace SmoDav\Mpesa\C2B;
 
 use Carbon\Carbon;
 use GuzzleHttp\Exception\RequestException;
+use Illuminate\Support\Traits\Macroable;
 use InvalidArgumentException;
 use SmoDav\Mpesa\Repositories\Endpoint;
 use SmoDav\Mpesa\Traits\UsesCore;
 use SmoDav\Mpesa\Traits\Validates;
+use stdClass;
 
 class STK
 {
-    use UsesCore, Validates;
+    use UsesCore;
+    use Validates;
+    use Macroable;
 
     const CUSTOMER_BUYGOODS_ONLINE = 'CustomerBuyGoodsOnline';
+
     const CUSTOMER_PAYBILL_ONLINE = 'CustomerPayBillOnline';
+
     const VALID_COMMANDS = [
         self::CUSTOMER_BUYGOODS_ONLINE,
         self::CUSTOMER_PAYBILL_ONLINE,
     ];
 
     /**
-     * The mobile number
+     * The mobile number.
      *
      * @var string
      */
     protected $number;
 
     /**
-     * The amount to request
+     * The amount to request.
      *
      * @var int
      */
     protected $amount;
 
     /**
-     * The transaction reference
+     * The transaction reference.
      *
      * @var string
      */
     protected $reference;
 
     /**
-     * The transaction description
+     * The transaction description.
      *
      * @var string
      */
@@ -68,7 +74,7 @@ class STK
      * @var string
      */
     protected $callback = null;
-    
+
     /**
      * Set the callback on completion.
      *
@@ -79,7 +85,7 @@ class STK
     public function setCallback(string $callback)
     {
         $this->callback = $callback;
-        
+
         return $this;
     }
 
@@ -102,9 +108,9 @@ class STK
      *
      * @param int $amount
      *
-     * @return self
-     *
      * @throws InvalidArgumentException
+     *
+     * @return self
      */
     public function request($amount)
     {
@@ -121,9 +127,9 @@ class STK
      *
      * @param int $number
      *
-     * @return self
-     *
      * @throws InvalidArgumentException
+     *
+     * @return self
      */
     public function from($number)
     {
@@ -144,7 +150,7 @@ class STK
      */
     public function usingReference($reference, $description)
     {
-        $this->reference   = $reference;
+        $this->reference = $reference;
         $this->description = $description;
 
         return $this;
@@ -155,13 +161,13 @@ class STK
      *
      * @param string $command
      *
-     * @return self
-     *
      * @throws InvalidArgumentException
+     *
+     * @return self
      */
     public function setCommand($command)
     {
-        if (! in_array($command, self::VALID_COMMANDS)) {
+        if (!in_array($command, self::VALID_COMMANDS)) {
             throw new InvalidArgumentException('Invalid command sent');
         }
 
@@ -188,14 +194,14 @@ class STK
         ];
 
         foreach ($map as $var => $method) {
-            if ($$var) {
-                call_user_func([$this, $method], $$var);
+            if (${$var}) {
+                call_user_func([$this, $method], ${$var});
             }
         }
     }
 
     /**
-     * Prepare the STK Push request
+     * Prepare the STK Push request.
      *
      * @param int|null    $amount
      * @param int|null    $number
@@ -213,25 +219,25 @@ class STK
         $this->core->useAccount($account ?: $this->account);
         $time = Carbon::now()->format('YmdHis');
 
-        $paybill   = $this->core->configRepository()->getAccountKey('lnmo.paybill');
+        $paybill = $this->core->configRepository()->getAccountKey('lnmo.paybill');
         $shortCode = $this->core->configRepository()->getAccountKey('lnmo.shortcode');
-        $passkey   = $this->core->configRepository()->getAccountKey('lnmo.passkey');
-        $callback  = $this->callback ?: $this->core->configRepository()->getAccountKey('lnmo.callback');
+        $passkey = $this->core->configRepository()->getAccountKey('lnmo.passkey');
+        $callback = $this->callback ?: $this->core->configRepository()->getAccountKey('lnmo.callback');
 
-        $partyB  = $this->command == self::CUSTOMER_PAYBILL_ONLINE ? $shortCode : $paybill;
+        $partyB = $this->command == self::CUSTOMER_PAYBILL_ONLINE ? $shortCode : $paybill;
 
         $body = [
             'BusinessShortCode' => $shortCode,
-            'Password'          => $this->password($shortCode, $passkey, $time),
-            'Timestamp'         => $time,
-            'TransactionType'   => $this->command,
-            'Amount'            => $this->amount,
-            'PartyA'            => $this->number,
-            'PartyB'            => $partyB,
-            'PhoneNumber'       => $number ?: $this->number,
-            'CallBackURL'       => $callback,
-            'AccountReference'  => $reference ?: $this->reference,
-            'TransactionDesc'   => $description ?: $this->description,
+            'Password' => $this->password($shortCode, $passkey, $time),
+            'Timestamp' => $time,
+            'TransactionType' => $this->command,
+            'Amount' => $this->amount,
+            'PartyA' => $this->number,
+            'PartyB' => $partyB,
+            'PhoneNumber' => $number ?: $this->number,
+            'CallBackURL' => $callback,
+            'AccountReference' => $reference ?: $this->reference,
+            'TransactionDesc' => $description ?: $this->description,
         ];
 
         try {
@@ -249,9 +255,10 @@ class STK
     /**
      * Validate an initialized transaction.
      *
-     * @param string $checkoutRequestID
+     * @param string     $checkoutRequestID
+     * @param mixed|null $account
      *
-     * @return json
+     * @return stdClass
      */
     public function validate($checkoutRequestID, $account = null)
     {
@@ -259,12 +266,12 @@ class STK
         $time = Carbon::now()->format('YmdHis');
 
         $shortCode = $this->core->configRepository()->getAccountKey('lnmo.shortcode');
-        $passkey   = $this->core->configRepository()->getAccountKey('lnmo.passkey');
+        $passkey = $this->core->configRepository()->getAccountKey('lnmo.passkey');
 
         $body = [
             'BusinessShortCode' => $shortCode,
-            'Password'          => $this->password($shortCode, $passkey, $time),
-            'Timestamp'         => $time,
+            'Password' => $this->password($shortCode, $passkey, $time),
+            'Timestamp' => $time,
             'CheckoutRequestID' => $checkoutRequestID,
         ];
 
