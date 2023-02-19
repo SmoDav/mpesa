@@ -6,7 +6,7 @@ class Endpoint
 {
     public const MPESA_AUTH = 'oauth/v1/generate?grant_type=client_credentials';
 
-    public const MPESA_ID_CHECK = 'mpesa/checkidentity/v1/query';
+    public const MPESA_ID_CHECK = 'mpesa/checkidentity/v1/processrequest';
 
     public const MPESA_REGISTER = 'mpesa/c2b/v2/registerurl';
 
