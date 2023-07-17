@@ -47,7 +47,7 @@ class Identity
         try {
             $response = $this->clientRequest(
                 $body,
-                $this->core->configRepository()->url(Endpoint::MPESA_ID_CHECK)
+                $this->core->configRepository()->url(Endpoint::getEndpoint(Endpoint::MPESA_ID_CHECK))
             );
 
             return json_decode($response->getBody());

@@ -243,7 +243,7 @@ class STK
         try {
             $response = $this->clientRequest(
                 $body,
-                $this->core->configRepository()->url(Endpoint::MPESA_LNMO)
+                $this->core->configRepository()->url(Endpoint::getEndpoint(Endpoint::MPESA_LNMO))
             );
 
             return json_decode($response->getBody());
@@ -278,7 +278,7 @@ class STK
         try {
             $response = $this->clientRequest(
                 $body,
-                $this->core->configRepository()->url(Endpoint::MPESA_LNMO_VALIDATE)
+                $this->core->configRepository()->url(Endpoint::getEndpoint(Endpoint::MPESA_LNMO_VALIDATE))
             );
 
             return json_decode($response->getBody());

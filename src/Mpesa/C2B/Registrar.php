@@ -152,7 +152,7 @@ class Registrar
         try {
             $response = $this->clientRequest(
                 $body,
-                $this->core->configRepository()->url(Endpoint::MPESA_REGISTER)
+                $this->core->configRepository()->url(Endpoint::getEndpoint(Endpoint::MPESA_REGISTER))
             );
 
             return json_decode($response->getBody());

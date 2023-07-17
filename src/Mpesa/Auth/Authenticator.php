@@ -99,7 +99,7 @@ class Authenticator
     private function makeRequest($key, $secret)
     {
         $credentials = base64_encode($key . ':' . $secret);
-        $endpoint = $this->core->configRepository()->url(Endpoint::MPESA_AUTH);
+        $endpoint = $this->core->configRepository()->url(Endpoint::getEndpoint(Endpoint::MPESA_AUTH));
 
         return $this->core->client()->request('GET', $endpoint, [
             'headers' => [
