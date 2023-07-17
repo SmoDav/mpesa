@@ -24,9 +24,10 @@ class Endpoint
     {
         return config('mpesa.version', 'v1');
     }
-    
-    public static function getEndpoint($endpoint, $version)
+
+    public static function getEndpoint($endpoint)
     {
+        $version = self::getVersion();
         return str_replace(':version', $version, $endpoint);
     }
 }
