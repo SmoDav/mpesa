@@ -8,9 +8,9 @@ class Endpoint
 
     public const MPESA_ID_CHECK = 'mpesa/checkidentity/v1/processrequest';
 
-    public const MPESA_REGISTER = 'mpesa/c2b/v2/registerurl';
+    public const MPESA_REGISTER = 'mpesa/c2b/v1/registerurl';
 
-    public const MPESA_SIMULATE = 'mpesa/c2b/v2/simulate';
+    public const MPESA_SIMULATE = 'mpesa/c2b/v1/simulate';
 
     public const MPESA_LNMO = 'mpesa/stkpush/v1/processrequest';
 
