@@ -1,4 +1,9 @@
 name: Build
+
+concurrency:
+  group: production
+  cancel-in-progress: true
+
 on:
   push:
     branches:
@@ -6,13 +11,22 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
-  sonarcloud:
-    name: SonarCloud
+  tests:
+    name: Tests and SonarCloud
     runs-on: ubuntu-latest
+
     steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          coverage: "xdebug"
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
+      - name: Install composer dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Static Checks & Test
+        run: ./vendor/bin/phpunit
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:

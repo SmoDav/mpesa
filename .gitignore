@@ -6,3 +6,5 @@ index.php
 /cache
 /.phpintel
 .php-cs-fixer.cache
+clover.xml
+junit.xml
