@@ -28,7 +28,7 @@ class Identity
 
         $shortCode = $this->core->configRepository()->getAccountKey('lnmo.shortcode');
         $passkey   = $this->core->configRepository()->getAccountKey('lnmo.passkey');
-        $callback  = $this->core->configRepository()->getAccountKey('lnmo.callback');
+        $lmnoCallback  = $callback ?: $this->core->configRepository()->getAccountKey('lnmo.callback');
 
         $defaultCallback = $this->core->configRepository()->getAccountKey('id_validation_callback');
         $initiator = $this->core->configRepository()->getAccountKey('initiator');
@@ -40,7 +40,7 @@ class Identity
             'Timestamp'         => $time,
             'TransactionType'   => 'CheckIdentity',
             'PhoneNumber'       => $number,
-            'CallBackURL'       => $callback ?: $defaultCallback,
+            'CallBackURL'       => $lmnoCallback ?: $defaultCallback,
             'TransactionDesc'   => ' '
         ];
 
