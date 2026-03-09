@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.1"
+          php-version: "8.4"
           coverage: "xdebug"
       - uses: actions/checkout@v3
         with:
@@ -28,7 +28,7 @@ jobs:
       - name: Static Checks & Test
         run: ./vendor/bin/phpunit
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v7.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
