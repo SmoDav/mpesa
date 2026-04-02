@@ -116,7 +116,8 @@ class Authenticator
      */
     private function saveCredentials($key, $credentials)
     {
-        $ttl = Carbon::now()->addSeconds($credentials->expires_in)->subMinute();
+        $ttlSeconds = (int) $credentials->expires_in;
+        $ttl = Carbon::now()->addSeconds($ttlSeconds)->subMinute();
 
         $this->core->cache()->put($key, $credentials->access_token, $ttl);
     }
